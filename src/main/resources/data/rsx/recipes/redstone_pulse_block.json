@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":
+  [
+    "RRR",
+    "RMR",
+    "RRR"
+  ],
+  "key":
+  {
+    "R": { "item": "minecraft:redstone" },
+    "M": { "item": "minecraft:repeater" }
+  },
+  "result": {
+    "item": "rsx:redstone_pulse_block"
+  }
+}

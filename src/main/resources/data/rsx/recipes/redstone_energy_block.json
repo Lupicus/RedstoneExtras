@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":
+  [
+    "RRR",
+    "RFR",
+    "RRR"
+  ],
+  "key":
+  {
+    "F": { "item": "minecraft:furnace" },
+    "R": { "item": "minecraft:redstone" }
+  },
+  "result": {
+    "item": "rsx:redstone_energy_block"
+  }
+}

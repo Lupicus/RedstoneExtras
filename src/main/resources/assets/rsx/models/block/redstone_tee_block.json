@@ -1,0 +1,8 @@
+{   "parent": "rsx:block/redstone_bender_base",
+    "textures": {
+        "particle": "rsx:block/redstone_tee_block",
+        "slab": "block/smooth_stone",
+        "top": "rsx:block/redstone_tee_block",
+        "overlay": "rsx:block/redstone_tee_block_overlay"
+    }
+}

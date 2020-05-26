@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":
+  [
+    "RRR",
+    "RGR",
+    "RRR"
+  ],
+  "key":
+  {
+    "R": { "item": "minecraft:redstone" },
+    "G": { "item": "minecraft:glass" }
+  },
+  "result": {
+    "item": "rsx:redstone_pipe_block"
+  }
+}

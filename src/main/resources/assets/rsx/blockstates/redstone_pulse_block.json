@@ -1,0 +1,12 @@
+{
+    "variants": {
+        "strength=high,facing=south": { "model": "rsx:block/redstone_pulse_block" },
+        "strength=high,facing=west": { "model": "rsx:block/redstone_pulse_block", "y": 90 },
+        "strength=high,facing=north": { "model": "rsx:block/redstone_pulse_block", "y": 180 },
+        "strength=high,facing=east": { "model": "rsx:block/redstone_pulse_block", "y": 270 },
+        "strength=low,facing=south": { "model": "rsx:block/redstone_pulse_low_block" },
+        "strength=low,facing=west": { "model": "rsx:block/redstone_pulse_low_block", "y": 90 },
+        "strength=low,facing=north": { "model": "rsx:block/redstone_pulse_low_block", "y": 180 },
+        "strength=low,facing=east": { "model": "rsx:block/redstone_pulse_low_block", "y": 270 }
+    }
+}

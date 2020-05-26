@@ -1,0 +1,6 @@
+{
+    "variants": {
+        "inverted=false": { "model": "rsx:block/daytime_sensor" },
+        "inverted=true": { "model": "rsx:block/daytime_sensor_inverted" }
+    }
+}

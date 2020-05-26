@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":
+  [
+    " C ",
+    " D ",
+    "   "
+  ],
+  "key":
+  {
+    "D": { "item": "minecraft:daylight_detector" },
+    "C": { "item": "minecraft:clock" }
+  },
+  "result": {
+    "item": "rsx:daytime_sensor"
+  }
+}

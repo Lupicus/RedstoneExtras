@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":
+  [
+    " RR",
+    " R ",
+    "SSS"
+  ],
+  "key":
+  {
+    "R": { "item": "minecraft:redstone" },
+    "S": { "tag": "forge:stone" }
+  },
+  "result": {
+    "item": "rsx:redstone_bender_block"
+  }
+}

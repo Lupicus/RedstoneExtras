@@ -1,0 +1,11 @@
+{
+	"block.rsx.daytime_sensor": "Daytime Sensor",
+	"block.rsx.redstone_pipe_block": "Redstone Pipe",
+	"block.rsx.redstone_energy_block": "Redstone Energy Block",
+	"block.rsx.redstone_pulse_block": "Redstone Pulse Block",
+	"block.rsx.redstone_power_block": "Redstone Power Block",
+	"block.rsx.redstone_bender_block": "Redstone Bender",
+	"block.rsx.redstone_tee_block": "Redstone Tee",
+	"block.rsx.redstone_straight_block": "Redstone Straight",
+	"block.rsx.redstone_resistor_block": "Redstone Resistor"
+}

@@ -1,0 +1,6 @@
+{
+    "parent": "block/cube_all",
+    "textures": {
+        "all": "rsx:block/redstone_pipe_block"
+    }
+}

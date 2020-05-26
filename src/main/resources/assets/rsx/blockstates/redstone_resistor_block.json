@@ -1,0 +1,8 @@
+{
+    "variants": {
+        "facing=south": { "model": "rsx:block/redstone_resistor_block" },
+        "facing=west": { "model": "rsx:block/redstone_resistor_block", "y": 90 },
+        "facing=north": { "model": "rsx:block/redstone_resistor_block", "y": 180 },
+        "facing=east": { "model": "rsx:block/redstone_resistor_block", "y": 270 }
+    }
+}

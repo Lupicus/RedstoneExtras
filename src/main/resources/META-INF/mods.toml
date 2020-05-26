@@ -1,0 +1,22 @@
+modLoader="javafml"
+loaderVersion="[30,)"
+[[mods]]
+modId="rsx"
+version="${file.jarVersion}"
+displayName="Easy Redstone Extras"
+displayURL="https://www.curseforge.com/minecraft/mc-mods/redstone-extras"
+logoFile="logo.png"
+authors="Lupicus, MacTso"
+description='''Easy Redstone Extras'''
+[[dependencies.rsx]]
+    modId="forge"
+    mandatory=true
+    versionRange="[30,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.rsx]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.15.1,1.16)"
+    ordering="NONE"
+    side="BOTH"
