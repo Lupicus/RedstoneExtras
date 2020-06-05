@@ -3,7 +3,8 @@
     "textures": {
         "particle": "rsx:block/redstone_pulse_low_block",
         "slab": "block/smooth_stone",
-        "top": "rsx:block/redstone_pulse_low_block"
+        "top": "rsx:block/redstone_pulse_low_block",
+        "lit": "block/redstone_torch"
     },
     "elements": [
         {   "from": [ 0, 0, 0 ],
@@ -16,6 +17,26 @@
                 "west":  { "uv": [ 0, 14, 16, 16 ], "texture": "#slab", "cullface": "west" },
                 "east":  { "uv": [ 0, 14, 16, 16 ], "texture": "#slab", "cullface": "east" }
             }
+        },
+        {   "from": [ 7, 5, 2 ],
+            "to": [ 9, 5, 4 ],
+            "faces": {
+                "up":   { "uv": [ 7, 6, 9, 8 ], "texture": "#lit" }
+            }
+        },
+        {   "from": [ 7, 2, 1 ],
+            "to": [ 9, 6, 5 ],
+            "faces": {
+                "west": { "uv": [ 6, 5, 10, 9 ], "texture": "#lit" },
+                "east": { "uv": [ 6, 5, 10, 9 ], "texture": "#lit" }
+            }
+        },
+        {   "from": [ 6, 2, 2 ],
+            "to": [ 10, 6, 4 ],
+            "faces": {
+                "north": { "uv": [ 6, 5, 10, 9 ], "texture": "#lit" },
+                "south": { "uv": [ 6, 5, 10, 9 ], "texture": "#lit" }
+            }
         }
-    ] 
+    ]
 }

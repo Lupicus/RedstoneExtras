@@ -9,6 +9,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.RedstoneWireBlock;
 import net.minecraft.client.renderer.color.ItemColors;
 import net.minecraft.item.BlockItem;
+import net.minecraft.item.BlockNamedItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.Item.Properties;
 import net.minecraft.item.ItemGroup;
@@ -27,6 +28,7 @@ public class ModItems
 	public static final Item REDSTONE_TEE_BLOCK = new BlockItem(ModBlocks.REDSTONE_TEE_BLOCK, new Properties().group(ItemGroup.REDSTONE)).setRegistryName("redstone_tee_block");
 	public static final Item REDSTONE_STRAIGHT_BLOCK = new BlockItem(ModBlocks.REDSTONE_STRAIGHT_BLOCK, new Properties().group(ItemGroup.REDSTONE)).setRegistryName("redstone_straight_block");
 	public static final Item REDSTONE_ENERGY_BLOCK = new BlockItem(ModBlocks.REDSTONE_ENERGY_BLOCK, new Properties().group(ItemGroup.REDSTONE)).setRegistryName("redstone_energy_block");
+	public static final Item BLUESTONE = new BlockNamedItem(ModBlocks.BLUESTONE_WIRE, new Item.Properties().group(ItemGroup.REDSTONE)).setRegistryName("bluestone");
 
 	public static void register(IForgeRegistry<Item> forgeRegistry)
 	{
@@ -35,6 +37,7 @@ public class ModItems
 		forgeRegistry.registerAll(REDSTONE_PIPE_BLOCK, REDSTONE_PULSE_BLOCK, REDSTONE_RESISTOR_BLOCK);
 		forgeRegistry.registerAll(REDSTONE_BENDER_BLOCK, REDSTONE_TEE_BLOCK, REDSTONE_STRAIGHT_BLOCK);
 		forgeRegistry.register(REDSTONE_ENERGY_BLOCK);
+		forgeRegistry.registerAll(BLUESTONE);
 	}
 
 	@OnlyIn(Dist.CLIENT)

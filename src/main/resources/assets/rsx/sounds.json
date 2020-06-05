@@ -1,0 +1,7 @@
+{
+  "redstone_pulse_block.click": {
+    "category": "block",
+    "subtitle": "subtitles.rsx.redstone_pulse_block.click",
+    "sounds": [ "minecraft:random/click" ]
+  }
+}

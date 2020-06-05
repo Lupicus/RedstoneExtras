@@ -223,10 +223,10 @@ public class RedstonePipeBlock extends Block
 		Block block = blockState.getBlock();
 		if (block == Blocks.REDSTONE_WIRE || block == ModBlocks.REDSTONE_PIPE_BLOCK) {
 			return true;
-		} else if (blockState.getBlock() == Blocks.REPEATER) {
+		} else if (block == Blocks.REPEATER) {
 			Direction direction = blockState.get(RepeaterBlock.HORIZONTAL_FACING);
 			return direction == side || direction.getOpposite() == side;
-		} else if (Blocks.OBSERVER == blockState.getBlock()) {
+		} else if (block == Blocks.OBSERVER) {
 			return side == blockState.get(ObserverBlock.FACING);
 		} else {
 			return blockState.canConnectRedstone(world, pos, side) && side != null;

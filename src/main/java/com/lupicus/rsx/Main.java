@@ -3,11 +3,13 @@ package com.lupicus.rsx;
 import com.lupicus.rsx.block.ModBlocks;
 import com.lupicus.rsx.config.MyConfig;
 import com.lupicus.rsx.item.ModItems;
+import com.lupicus.rsx.sound.ModSounds;
 import com.lupicus.rsx.tileentity.ModTileEntities;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.SoundEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ColorHandlerEvent;
@@ -64,6 +66,12 @@ public class Main
         public static void onColorsRegistry(final ColorHandlerEvent.Item event)
         {
         	ModItems.register(event.getItemColors());
+        }
+
+        @SubscribeEvent
+        public static void onSoundRegistry(final RegistryEvent.Register<SoundEvent> event)
+        {
+        	ModSounds.register(event.getRegistry());
         }
 
 	    @SubscribeEvent

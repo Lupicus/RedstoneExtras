@@ -2,6 +2,8 @@ package com.lupicus.rsx.block;
 
 import java.util.Random;
 
+import com.lupicus.rsx.sound.ModSounds;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.RedstoneDiodeBlock;
@@ -11,10 +13,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer.Builder;
+import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IBlockReader;
@@ -25,6 +29,7 @@ public class RedstonePulseBlock extends RedstoneDiodeBlock
 {
 	public static final BooleanProperty PULSE = BooleanProperty.create("pulse");
 	public static final EnumProperty<PulseStrength> STRENGTH = EnumProperty.create("strength", PulseStrength.class);
+	public static final BooleanProperty INVERTED = BlockStateProperties.INVERTED;
 
 	public RedstonePulseBlock(Properties properties) {
 		super(properties);
@@ -33,7 +38,8 @@ public class RedstonePulseBlock extends RedstoneDiodeBlock
 				.with(HORIZONTAL_FACING, Direction.NORTH)
 				.with(STRENGTH, PulseStrength.HIGH)
 				.with(PULSE, Boolean.valueOf(false))
-				.with(POWERED, false));
+				.with(POWERED, false)
+				.with(INVERTED, false));
 	}
 
 	@Override
@@ -42,7 +48,17 @@ public class RedstonePulseBlock extends RedstoneDiodeBlock
 		if (!player.abilities.allowEdit) {
 			return ActionResultType.PASS;
 		} else {
-			world.setBlockState(pos, state.cycle(STRENGTH), 3);
+			float f;
+			if (player.isShiftKeyDown()) {
+				state = state.cycle(STRENGTH);
+				f = state.get(STRENGTH) == PulseStrength.LOW ? 0.5F : 0.55F;
+			}
+			else {
+				state = state.cycle(INVERTED);
+				f = state.get(INVERTED) ? 0.5F : 0.55F;
+			}
+			world.playSound(player, pos, ModSounds.REDSTONE_PULSE_CLICK, SoundCategory.BLOCKS, 0.3F, f);
+			world.setBlockState(pos, state, 2);
 			return ActionResultType.SUCCESS;
 		}
 	}
@@ -62,15 +78,17 @@ public class RedstonePulseBlock extends RedstoneDiodeBlock
 			boolean flag1 = shouldBePowered(world, pos, state);
 			if (flag != flag1)
 			{
-				if (flag1)
+				boolean flag2 = flag1;
+				if (state.get(INVERTED)) flag2 = !flag2;
+				if (flag2)
 				{
 					world.getPendingBlockTicks().scheduleTick(pos, this, 1);
-					state = state.with(POWERED, true).with(PULSE, true);
+					state = state.with(POWERED, flag1).with(PULSE, true);
 					world.setBlockState(pos, state, 3);
 				}
 				else
 				{
-					state = state.with(POWERED, false);
+					state = state.with(POWERED, flag1);
 					world.setBlockState(pos, state, 2);
 				}
 			}
@@ -112,7 +130,7 @@ public class RedstonePulseBlock extends RedstoneDiodeBlock
 
 	@Override
 	protected void fillStateContainer(Builder<Block, BlockState> builder) {
-		builder.add(HORIZONTAL_FACING, STRENGTH, PULSE, POWERED);
+		builder.add(HORIZONTAL_FACING, STRENGTH, PULSE, POWERED, INVERTED);
 	}
 
 	public enum PulseStrength implements IStringSerializable
