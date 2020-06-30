@@ -9,7 +9,7 @@ var InsnNode = Java.type('org.objectweb.asm.tree.InsnNode')
 
 function initializeCoreMod() {
     return {
-    	'RedstoneWire': {
+    	'redstoneWire': {
     		'target': {
     			'type': 'CLASS',
     			'name': 'net.minecraft.block.RedstoneWireBlock'
@@ -31,6 +31,31 @@ function initializeCoreMod() {
     			}
     			if (count < 2)
     				asmapi.log("ERROR", "Failed to modify RedstoneWireBlock: Method not found")
+    			return classNode;
+    		}
+    	},
+    	'redstoneDiode': {
+    		'target': {
+    			'type': 'CLASS',
+    			'name': 'net.minecraft.block.RedstoneDiodeBlock'
+    		},
+    		'transformer': function(classNode) {
+    			var count = 0
+    			var fn = asmapi.mapMethod('func_176397_f') // calculateInputStrength
+    			var fn2 = asmapi.mapMethod('func_176401_c') // getPowerOnSide
+    			for (var i = 0; i < classNode.methods.size(); ++i) {
+    				var obj = classNode.methods.get(i)
+    				if (obj.name == fn) {
+    					patch_func_176397_f(obj)
+    					count++
+    				}
+    				else if (obj.name == fn2) {
+    					patch_func_176401_c(obj)
+    					count++
+    				}
+    			}
+    			if (count < 2)
+    				asmapi.log("ERROR", "Failed to modify RedstoneDiodeBlock: Method not found")
     			return classNode;
     		}
     	}
@@ -94,4 +119,65 @@ function patch_canConnectTo(obj) {
 	}
 	else
 		asmapi.log("ERROR", "Failed to modify RedstoneWireBlock: GETSTATIC not found")
+}
+
+// calculateInputStrength
+// add || block == ModBlocks.BLUESTONE_WIRE then blockstate.get(POWER)
+function patch_func_176397_f(obj) {
+	var wire = asmapi.mapField('field_150488_af')
+	var node = asmapi.findFirstInstruction(obj, opc.GETSTATIC)
+	while (node && node.name != wire) {
+		var index = obj.instructions.indexOf(node)
+		var node = asmapi.findFirstInstructionAfter(obj, opc.GETSTATIC, index + 1)
+	}
+	if (node) {
+		node2 = node.getNext()
+		if (node2 && node2.getOpcode() == opc.IF_ACMPNE)
+		{
+			obj.instructions.insertBefore(node, new InsnNode(opc.DUP))
+
+			var lb1 = new Label()
+			var op1 = new JumpInsnNode(opc.IF_ACMPEQ, lb1)
+			var op2 = new FieldInsnNode(opc.GETSTATIC, "com/lupicus/rsx/block/ModBlocks", "BLUESTONE_WIRE", "Lnet/minecraft/block/Block;")
+			var list = asmapi.listOf(op1, op2)
+			obj.instructions.insert(node, list)
+
+			op1 = new InsnNode(opc.ICONST_0)
+			op2 = new InsnNode(opc.POP)
+			list = asmapi.listOf(op1, lb1, op2)
+			obj.instructions.insert(node2, list)
+		}
+		else
+			asmapi.log("ERROR", "Failed to modify RedstoneDiodeBlock: Label not found")
+	}
+	else
+		asmapi.log("ERROR", "Failed to modify RedstoneDiodeBlock: GETSTATIC not found")
+}
+
+// getPowerOnSide
+// add || block == ModBlocks.BLUESTONE_WIRE then blockstate.get(POWER)
+function patch_func_176401_c(obj) {
+	var wire = asmapi.mapField('field_150488_af')
+	var node = asmapi.findFirstInstruction(obj, opc.GETSTATIC)
+	while (node && node.name != wire) {
+		var index = obj.instructions.indexOf(node)
+		var node = asmapi.findFirstInstructionAfter(obj, opc.GETSTATIC, index + 1)
+	}
+	if (node) {
+		node2 = node.getNext()
+		if (node2 && node2.getOpcode() == opc.IF_ACMPNE)
+		{
+			var op4 = new Label()
+			var op1 = new JumpInsnNode(opc.IF_ACMPEQ, op4)
+			var op2 = new VarInsnNode(opc.ALOAD, 5)
+			var op3 = new FieldInsnNode(opc.GETSTATIC, "com/lupicus/rsx/block/ModBlocks", "BLUESTONE_WIRE", "Lnet/minecraft/block/Block;")
+			var list = asmapi.listOf(op1, op2, op3)
+			obj.instructions.insert(node, list)
+			obj.instructions.insert(node2, op4)
+		}
+		else
+			asmapi.log("ERROR", "Failed to modify RedstoneDiodeBlock: Label not found")
+	}
+	else
+		asmapi.log("ERROR", "Failed to modify RedstoneDiodeBlock: GETSTATIC not found")
 }
