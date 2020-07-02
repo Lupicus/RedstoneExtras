@@ -49,12 +49,12 @@ public class RedstonePulseBlock extends RedstoneDiodeBlock
 			return ActionResultType.PASS;
 		} else {
 			float f;
-			if (player.isShiftKeyDown()) {
-				state = state.cycle(STRENGTH);
+			if (player.isSneaking()) {
+				state = state.func_235896_a_(STRENGTH); // cycle
 				f = state.get(STRENGTH) == PulseStrength.LOW ? 0.5F : 0.55F;
 			}
 			else {
-				state = state.cycle(INVERTED);
+				state = state.func_235896_a_(INVERTED); // cycle
 				f = state.get(INVERTED) ? 0.5F : 0.55F;
 			}
 			world.playSound(player, pos, ModSounds.REDSTONE_PULSE_CLICK, SoundCategory.BLOCKS, 0.3F, f);
@@ -146,11 +146,11 @@ public class RedstonePulseBlock extends RedstoneDiodeBlock
 
 		@Override
 		public String toString() {
-			return this.getName();
+			return this.func_176610_l(); // getName
 		}
 
 		@Override
-		public String getName() {
+		public String func_176610_l() { // getName
 			return this.name;
 		}
 	}

@@ -1,7 +1,7 @@
 package com.lupicus.rsx.block;
 
+import net.minecraft.block.AbstractBlock.Properties;
 import net.minecraft.block.Block;
-import net.minecraft.block.Block.Properties;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.RenderType;
@@ -15,7 +15,7 @@ public class ModBlocks
 {
 	public static final Block DAYTIME_SENSOR = new DaytimeSensorBlock(Properties.create(Material.WOOD).hardnessAndResistance(0.2F).sound(SoundType.WOOD)).setRegistryName("daytime_sensor");
 	public static final Block REDSTONE_POWER_BLOCK = new RedstonePowerBlock(Properties.create(Material.IRON).hardnessAndResistance(5.0F, 6.0F).sound(SoundType.METAL)).setRegistryName("redstone_power_block");
-	public static final Block REDSTONE_PIPE_BLOCK = new RedstonePipeBlock(Properties.create(Material.GLASS).notSolid().hardnessAndResistance(0.25F).sound(SoundType.GLASS)).setRegistryName("redstone_pipe_block");
+	public static final Block REDSTONE_PIPE_BLOCK = new RedstonePipeBlock(Properties.create(Material.GLASS).notSolid().hardnessAndResistance(0.25F).sound(SoundType.GLASS).func_235828_a_(RedstonePipeBlock::isNormalCube)).setRegistryName("redstone_pipe_block");
 	public static final Block REDSTONE_PULSE_BLOCK = new RedstonePulseBlock(Properties.create(Material.MISCELLANEOUS).hardnessAndResistance(0.0F).sound(SoundType.WOOD)).setRegistryName("redstone_pulse_block");
 	public static final Block REDSTONE_RESISTOR_BLOCK = new RedstoneResistorBlock(Properties.create(Material.MISCELLANEOUS).hardnessAndResistance(0.0F).sound(SoundType.WOOD)).setRegistryName("redstone_resistor_block");
 	public static final Block REDSTONE_BENDER_BLOCK = new RedstoneBenderBlock(Properties.create(Material.MISCELLANEOUS).hardnessAndResistance(0.0F).sound(SoundType.WOOD)).setRegistryName("redstone_bender_block");

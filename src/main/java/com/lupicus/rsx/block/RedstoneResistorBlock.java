@@ -39,12 +39,12 @@ public class RedstoneResistorBlock extends RedstoneDiodeBlock
 
 	@Override
 	public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player,
-			Hand handIn, BlockRayTraceResult p_225533_6_) {
+			Hand handIn, BlockRayTraceResult result) {
 		if (!player.abilities.allowEdit) {
 			return ActionResultType.PASS;
 		} else {
 			int i = state.get(RESISTANCE);
-			if (player.isShiftKeyDown()) {
+			if (player.isSneaking()) {
 				i = (i > 0) ? i - 1 : 15;
 			}
 			else {

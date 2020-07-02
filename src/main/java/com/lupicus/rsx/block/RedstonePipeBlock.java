@@ -1,6 +1,5 @@
 package com.lupicus.rsx.block;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -8,7 +7,6 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -30,6 +28,7 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
@@ -55,9 +54,8 @@ public class RedstonePipeBlock extends Block
 			.put(Direction.UP, UP)
 			.put(Direction.DOWN, DOWN)
 			.build());
+	private static final Vector3f[] COLORS = new Vector3f[16];
 	private RedstoneWireBlock wire = (RedstoneWireBlock) Blocks.REDSTONE_WIRE;
-	/** List of blocks to update with redstone. */
-	private final Set<BlockPos> blocksNeedingUpdate = Sets.newHashSet();
 
 	public RedstonePipeBlock(Properties properties)
 	{
@@ -67,8 +65,7 @@ public class RedstonePipeBlock extends Block
 				.with(DOWN, RedstoneSide.NONE).with(POWER, Integer.valueOf(0)));
 	}
 
-	@Override
-	public boolean isNormalCube(BlockState state, IBlockReader worldIn, BlockPos pos) {
+	public static boolean isNormalCube(BlockState state, IBlockReader worldIn, BlockPos pos) {
 		return false;
 	}
 
@@ -96,53 +93,39 @@ public class RedstonePipeBlock extends Block
 		return canConnectTo(blockstate, worldIn, blockpos, face) ? RedstoneSide.SIDE : RedstoneSide.NONE;
 	}
 
-	private BlockState updateSurroundingRedstone(World worldIn, BlockPos pos, BlockState state) {
-		state = func_212568_b(worldIn, pos, state);
-		List<BlockPos> list = Lists.newArrayList(blocksNeedingUpdate);
-		blocksNeedingUpdate.clear();
-
-		for (BlockPos blockpos : list) {
-			worldIn.notifyNeighborsOfStateChange(blockpos, this);
-		}
-
-		return state;
-	}
-
-	private BlockState func_212568_b(World world, BlockPos pos, BlockState stateIn) {
-		BlockState blockstate = stateIn;
-		int i = stateIn.get(POWER);
-		int j = 0;
-		wire.canProvidePower = false;
-		j = world.getRedstonePowerFromNeighbors(pos);
-		wire.canProvidePower = true;
-		int k = 0;
-		if (j < 15) {
-			for (Direction direction : Direction.values()) {
-				BlockPos blockpos = pos.offset(direction);
-				BlockState blockstate1 = world.getBlockState(blockpos);
-				k = maxSignal(k, blockstate1);
-			}
-		}
-
-		int l = k - 1;
-		if (j > l) {
-			l = j;
-		}
-
-		if (i != l) {
-			stateIn = stateIn.with(POWER, Integer.valueOf(l));
-			if (world.getBlockState(pos) == blockstate) {
-				world.setBlockState(pos, stateIn, 2);
+	private void updateSurroundingRedstone(World worldIn, BlockPos pos, BlockState state) {
+		int i = func_212568_b(worldIn, pos);
+		if (state.get(POWER) != i) {
+			if (worldIn.getBlockState(pos) == state) {
+				worldIn.setBlockState(pos, state.with(POWER, Integer.valueOf(i)), 2);
 			}
 
-			blocksNeedingUpdate.add(pos);
+			Set<BlockPos> set = Sets.newHashSet();
+			set.add(pos);
 
 			for (Direction direction1 : Direction.values()) {
-				blocksNeedingUpdate.add(pos.offset(direction1));
+				set.add(pos.offset(direction1));
+			}
+
+			for (BlockPos blockpos : set) {
+				worldIn.notifyNeighborsOfStateChange(blockpos, this);
+			}
+		}
+	}
+
+	private int func_212568_b(World world, BlockPos pos) {
+		wire.canProvidePower = false;
+		int i = world.getRedstonePowerFromNeighbors(pos);
+		wire.canProvidePower = true;
+		int j = 0;
+		if (i < 15) {
+			for (Direction direction : Direction.values()) {
+				BlockState blockstate1 = world.getBlockState(pos.offset(direction));
+				j = Math.max(j, getPower(blockstate1));
 			}
 		}
 
-		return stateIn;
+		return Math.max(i, j - 1);
 	}
 
 	/**
@@ -150,8 +133,8 @@ public class RedstonePipeBlock extends Block
 	 * only if the given block is a redstone wire.
 	 */
 	private void notifyWireNeighborsOfStateChange(World worldIn, BlockPos pos) {
-		Block test = worldIn.getBlockState(pos).getBlock();
-		if (test == this || test == Blocks.REDSTONE_WIRE) {
+		BlockState state = worldIn.getBlockState(pos);
+		if (state.isIn(this) || state.isIn(Blocks.REDSTONE_WIRE)) {
 			worldIn.notifyNeighborsOfStateChange(pos, this);
 
 			for (Direction direction : Direction.values()) {
@@ -162,7 +145,7 @@ public class RedstonePipeBlock extends Block
 
 	@Override
 	public void onBlockAdded(BlockState state, World worldIn, BlockPos pos, BlockState oldState, boolean isMoving) {
-		if (oldState.getBlock() != state.getBlock() && !worldIn.isRemote) {
+		if (!oldState.isIn(state.getBlock()) && !worldIn.isRemote) {
 			updateSurroundingRedstone(worldIn, pos, state);
 
 			for (Direction direction : Direction.values()) {
@@ -174,7 +157,7 @@ public class RedstonePipeBlock extends Block
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (!isMoving && state.getBlock() != newState.getBlock()) {
+		if (!isMoving && !state.isIn(newState.getBlock())) {
 			super.onReplaced(state, worldIn, pos, newState, isMoving);
 			if (!worldIn.isRemote) {
 				for (Direction direction : Direction.values()) {
@@ -190,14 +173,8 @@ public class RedstonePipeBlock extends Block
 		}
 	}
 
-	private int maxSignal(int existingSignal, BlockState neighbor) {
-		Block test = neighbor.getBlock();
-		if (test != this && test != Blocks.REDSTONE_WIRE) {
-			return existingSignal;
-		} else {
-			int i = neighbor.get(POWER);
-			return i > existingSignal ? i : existingSignal;
-		}
+	private int getPower(BlockState neighbor) {
+		return neighbor.isIn(this) || neighbor.isIn(Blocks.REDSTONE_WIRE) ? neighbor.get(POWER) : 0;
 	}
 
 	@Override
@@ -220,13 +197,12 @@ public class RedstonePipeBlock extends Block
 
 	protected static boolean canConnectTo(BlockState blockState, IBlockReader world, BlockPos pos,
 			@Nullable Direction side) {
-		Block block = blockState.getBlock();
-		if (block == Blocks.REDSTONE_WIRE || block == ModBlocks.REDSTONE_PIPE_BLOCK) {
+		if (blockState.isIn(Blocks.REDSTONE_WIRE) || blockState.isIn(ModBlocks.REDSTONE_PIPE_BLOCK)) {
 			return true;
-		} else if (block == Blocks.REPEATER) {
+		} else if (blockState.isIn(Blocks.REPEATER)) {
 			Direction direction = blockState.get(RepeaterBlock.HORIZONTAL_FACING);
 			return direction == side || direction.getOpposite() == side;
-		} else if (block == Blocks.OBSERVER) {
+		} else if (blockState.isIn(Blocks.OBSERVER)) {
 			return side == blockState.get(ObserverBlock.FACING);
 		} else {
 			return blockState.canConnectRedstone(world, pos, side) && side != null;
@@ -240,19 +216,8 @@ public class RedstonePipeBlock extends Block
 
 	@OnlyIn(Dist.CLIENT)
 	public static int colorMultiplier(int power) {
-		float f = (float) power / 15.0F;
-		float f1 = f * 0.6F + 0.4F;
-		if (power == 0) {
-			f1 = 0.3F;
-		}
-
-		float f2 = f * f * 0.7F - 0.5F;
-		float f3 = f * f * 0.6F - 0.7F;
-
-		int i = MathHelper.clamp((int) (f1 * 255.0F), 0, 255);
-		int j = MathHelper.clamp((int) (f2 * 255.0F), 0, 255);
-		int k = MathHelper.clamp((int) (f3 * 255.0F), 0, 255);
-		return -16777216 | i << 16 | j << 8 | k;
+		Vector3f vector3f = COLORS[power];
+		return MathHelper.rgb(vector3f.getX(), vector3f.getY(), vector3f.getZ());
 	}
 
 	/**
@@ -269,42 +234,19 @@ public class RedstonePipeBlock extends Block
 			double d0 = (double) pos.getX() + 0.5D + ((double) rand.nextFloat() - 0.5D) * 0.8D;
 			double d1 = (double) pos.getY() + 0.5D + ((double) rand.nextFloat() - 0.5D) * 0.8D;
 			double d2 = (double) pos.getZ() + 0.5D + ((double) rand.nextFloat() - 0.5D) * 0.8D;
-			float f = (float) i / 15.0F;
-			float f1 = f * 0.6F + 0.4F;
-			float f2 = Math.max(0.0F, f * f * 0.7F - 0.5F);
-			float f3 = Math.max(0.0F, f * f * 0.6F - 0.7F);
-			worldIn.addParticle(new RedstoneParticleData(f1, f2, f3, 1.0F), d0, d1, d2, 0.0D, 0.0D, 0.0D);
+			Vector3f vec = COLORS[i];
+			worldIn.addParticle(new RedstoneParticleData(vec.getX(), vec.getY(), vec.getZ(), 1.0F), d0, d1, d2, 0.0D, 0.0D, 0.0D);
 		}
 	}
 
 	/**
-	 * Special hook for remapping our block as redstone wire
-	 * @param state
-	 * @return
-	 */
-	public static Block getBlockHook(BlockState state)
-	{
-		Block block = state.getBlock();
-		if (block == ModBlocks.REDSTONE_PIPE_BLOCK)
-			block = Blocks.REDSTONE_WIRE;
-		return block;
-	}
-
-	/**
-	 * Maximum signal between input pipe/wire signal and the neighbor state
+	 * Get power of neighbor pipe/wire
 	 * (It is public so patched wire code can call us)
-	 * @param existingSignal
 	 * @param neighbor
-	 * @return maximum pipe/wire signal
+	 * @return get pipe/wire power
 	 */
-	public static int maxSignalHook(int existingSignal, BlockState neighbor) {
-		Block test = neighbor.getBlock();
-		if (test != ModBlocks.REDSTONE_PIPE_BLOCK && test != Blocks.REDSTONE_WIRE) {
-			return existingSignal;
-		} else {
-			int i = neighbor.get(POWER);
-			return i > existingSignal ? i : existingSignal;
-		}
+	public static int getPowerHook(BlockState neighbor) {
+		return neighbor.isIn(ModBlocks.REDSTONE_PIPE_BLOCK) || neighbor.isIn(Blocks.REDSTONE_WIRE) ? neighbor.get(POWER) : 0;
 	}
 
 	@Override
@@ -340,5 +282,15 @@ public class RedstonePipeBlock extends Block
 	@Override
 	protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
 		builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN, POWER);
+	}
+
+	static {
+		for (int i = 0; i <= 15; ++i) {
+			float f = (float) i / 15.0F;
+			float f1 = f * 0.6F + (f > 0.0F ? 0.4F : 0.3F);
+			float f2 = MathHelper.clamp(f * f * 0.7F - 0.5F, 0.0F, 1.0F);
+			float f3 = MathHelper.clamp(f * f * 0.6F - 0.7F, 0.0F, 1.0F);
+			COLORS[i] = new Vector3f(f1, f2, f3);
+		}
 	}
 }

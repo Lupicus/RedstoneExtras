@@ -57,14 +57,14 @@ public class RedstoneBenderBlock extends HorizontalBlock
 	@SuppressWarnings("deprecation")
 	@Override
 	public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player,
-			Hand handIn, BlockRayTraceResult p_225533_6_) {
+			Hand handIn, BlockRayTraceResult result) {
 		if (!player.abilities.allowEdit) {
 			return ActionResultType.PASS;
 		} else {
 			HashSet<Direction> set = new HashSet<>();
 			if (getActiveSignal(world, pos, state) > 0)
 				getSides(state, set);
-			Rotation rot = (player.isShiftKeyDown()) ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90;
+			Rotation rot = (player.isSneaking()) ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90;
 			state = rotate(state, rot);
 			world.setBlockState(pos, state, 0);
 			int j = calculateInputStrength(world, pos, state);

@@ -8,17 +8,17 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.Dimension;
 
 public class DaytimeSensorBlock extends DaylightDetectorBlock
 {
 	private static long time;
-	private static Dimension dim;
+	private static RegistryKey<World> dim;
 	private static int skylightSubtracted;
 
 	public DaytimeSensorBlock(Properties properties) {
@@ -27,10 +27,11 @@ public class DaytimeSensorBlock extends DaylightDetectorBlock
 
 	public static void updatePower(BlockState state, World world, BlockPos pos) {
 		long time = world.getDayTime();
-		if (time != DaytimeSensorBlock.time || world.dimension != dim)
+		RegistryKey<World> curdim = world.func_234923_W_();
+		if (time != DaytimeSensorBlock.time || curdim != dim)
 		{
 			DaytimeSensorBlock.time = time;
-			dim = world.dimension;
+			dim = curdim;
 			// calculateInitialSkylight without rain and thunder
 			double d2 = 0.5D + 2.0D * MathHelper
 					.clamp((double) MathHelper.cos(world.getCelestialAngle(1.0F) * ((float) Math.PI * 2F)), -0.25D, 0.25D);
@@ -52,10 +53,10 @@ public class DaytimeSensorBlock extends DaylightDetectorBlock
 			if (worldIn.isRemote) {
 				return ActionResultType.SUCCESS;
 			} else {
-				BlockState blockstate = state.cycle(INVERTED);
+				BlockState blockstate = state.func_235896_a_(INVERTED); // cycle
 				worldIn.setBlockState(pos, blockstate, 4);
 				updatePower(blockstate, worldIn, pos);
-				return ActionResultType.SUCCESS;
+				return ActionResultType.CONSUME;
 			}
 		} else {
 			return super.onBlockActivated(state, worldIn, pos, player, handIn, result);
