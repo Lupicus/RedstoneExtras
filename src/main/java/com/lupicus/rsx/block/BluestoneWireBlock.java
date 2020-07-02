@@ -225,15 +225,15 @@ public class BluestoneWireBlock extends Block
 		wire.canProvidePower = true;
 		int k = 0;
 		if (j < 15) {
+			BlockPos blockpos1 = posIn.up();
+			Boolean isUpNormal = world.getBlockState(blockpos1).isNormalCube(world, blockpos1);
 			for (Direction direction : Direction.Plane.HORIZONTAL) {
-				RedstoneSide side = stateIn.get(FACING_PROPERTY_MAP.get(direction));
-				if (side == RedstoneSide.NONE)
-					continue;
 				BlockPos blockpos = posIn.offset(direction);
 				BlockState blockstate1 = world.getBlockState(blockpos);
 				k = maxSignal(k, blockstate1);
-				if (side == RedstoneSide.UP) {
-					k = maxSignal(k, world.getBlockState(blockpos.up()));
+				if (blockstate1.isNormalCube(world, blockpos)) {
+					if (!isUpNormal)
+						k = maxSignal(k, world.getBlockState(blockpos.up()));
 				} else {
 					k = maxSignal(k, world.getBlockState(blockpos.down()));
 				}
