@@ -34,7 +34,7 @@ public class DaytimeSensorBlock extends DaylightDetectorBlock
 			dim = curdim;
 			// calculateInitialSkylight without rain and thunder
 			double d2 = 0.5D + 2.0D * MathHelper
-					.clamp((double) MathHelper.cos(world.getCelestialAngle(1.0F) * ((float) Math.PI * 2F)), -0.25D, 0.25D);
+					.clamp((double) MathHelper.cos(world.func_242415_f(1.0F) * ((float) Math.PI * 2F)), -0.25D, 0.25D); // getCelestialAngle
 			skylightSubtracted = (int) ((1.0D - d2) * 11.0D);
 		}
 		int i = (skylightSubtracted < 4) ? 15 : 0;

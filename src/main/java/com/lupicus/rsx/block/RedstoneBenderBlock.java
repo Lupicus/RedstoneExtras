@@ -54,6 +54,7 @@ public class RedstoneBenderBlock extends HorizontalBlock
 		return hasSolidSideOnTop(worldIn, pos.down());
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player,
 			Hand handIn, BlockRayTraceResult result) {
