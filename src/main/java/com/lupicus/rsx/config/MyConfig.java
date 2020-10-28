@@ -13,13 +13,13 @@ import net.minecraftforge.fml.config.ModConfig;
 @Mod.EventBusSubscriber(modid = Main.MODID, bus=Mod.EventBusSubscriber.Bus.MOD)
 public class MyConfig
 {
-	public static final Server SERVER;
-	public static final ForgeConfigSpec SERVER_SPEC;
+	public static final Common COMMON;
+	public static final ForgeConfigSpec COMMON_SPEC;
 	static
 	{
-		final Pair<Server, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Server::new);
-		SERVER_SPEC = specPair.getRight();
-		SERVER = specPair.getLeft();
+		final Pair<Common, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Common::new);
+		COMMON_SPEC = specPair.getRight();
+		COMMON = specPair.getLeft();
 	}
 
 	public static double energyFactor;
@@ -27,7 +27,7 @@ public class MyConfig
 	@SubscribeEvent
 	public static void onModConfigEvent(final ModConfig.ModConfigEvent configEvent)
 	{
-		if (configEvent.getConfig().getSpec() == MyConfig.SERVER_SPEC)
+		if (configEvent.getConfig().getSpec() == MyConfig.COMMON_SPEC)
 		{
 			bakeConfig();
 		}
@@ -35,14 +35,14 @@ public class MyConfig
 
 	public static void bakeConfig()
 	{
-		energyFactor = SERVER.energyFactor.get();
+		energyFactor = COMMON.energyFactor.get();
 	}
 
-	public static class Server
+	public static class Common
 	{
 		public final DoubleValue energyFactor;
 
-		public Server(ForgeConfigSpec.Builder builder)
+		public Common(ForgeConfigSpec.Builder builder)
 		{
 			String baseTrans = Main.MODID + ".config.";
 			String sectionTrans;
