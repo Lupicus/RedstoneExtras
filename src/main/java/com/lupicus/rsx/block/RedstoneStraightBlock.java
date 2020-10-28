@@ -67,6 +67,6 @@ public class RedstoneStraightBlock extends RedstoneBenderBlock
 	@Override
 	public boolean canConnectRedstone(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
 		Direction facing = state.get(HORIZONTAL_FACING);
-		return facing == side || facing.getOpposite() == side || facing.rotateY() == side;
+		return facing == side || facing.getOpposite() == side;
 	}
 }
