@@ -36,17 +36,15 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class RedstonePipeBlock extends Block
+public class BluestonePipeBlock extends Block
 {
-	public static final EnumProperty<RedstoneSide> REDSTONE_UP = EnumProperty.create("up", RedstoneSide.class);
-	public static final EnumProperty<RedstoneSide> REDSTONE_DOWN = EnumProperty.create("down", RedstoneSide.class);
-	public static final EnumProperty<RedstoneSide> UP = REDSTONE_UP;
-	public static final EnumProperty<RedstoneSide> DOWN = REDSTONE_DOWN;
+	public static final EnumProperty<RedstoneSide> UP = RedstonePipeBlock.REDSTONE_UP;
+	public static final EnumProperty<RedstoneSide> DOWN = RedstonePipeBlock.REDSTONE_DOWN;
 	public static final EnumProperty<RedstoneSide> NORTH = BlockStateProperties.REDSTONE_NORTH;
 	public static final EnumProperty<RedstoneSide> EAST = BlockStateProperties.REDSTONE_EAST;
 	public static final EnumProperty<RedstoneSide> SOUTH = BlockStateProperties.REDSTONE_SOUTH;
 	public static final EnumProperty<RedstoneSide> WEST = BlockStateProperties.REDSTONE_WEST;
-	public static final IntegerProperty POWER = RedstoneWireBlock.POWER; // == BlockStateProperties.POWER_0_15;
+	public static final IntegerProperty POWER = BluestoneWireBlock.POWER; // == BlockStateProperties.POWER_0_15;
 	public static final Map<Direction, EnumProperty<RedstoneSide>> FACING_PROPERTY_MAP = Maps.newEnumMap(ImmutableMap.<Direction, EnumProperty<RedstoneSide>>builder()
 			.put(Direction.NORTH, NORTH)
 			.put(Direction.EAST, EAST)
@@ -59,7 +57,7 @@ public class RedstonePipeBlock extends Block
 	/** List of blocks to update with redstone. */
 	private final Set<BlockPos> blocksNeedingUpdate = Sets.newHashSet();
 
-	public RedstonePipeBlock(Properties properties)
+	public BluestonePipeBlock(Properties properties)
 	{
 		super(properties);
 		setDefaultState(stateContainer.getBaseState().with(NORTH, RedstoneSide.NONE).with(EAST, RedstoneSide.NONE)
@@ -147,11 +145,11 @@ public class RedstonePipeBlock extends Block
 
 	/**
 	 * Calls World.notifyNeighborsOfStateChange() for all neighboring blocks, but
-	 * only if the given block is a redstone wire.
+	 * only if the given block is a bluestone wire.
 	 */
 	private void notifyWireNeighborsOfStateChange(World worldIn, BlockPos pos) {
 		Block test = worldIn.getBlockState(pos).getBlock();
-		if (test == this || test == Blocks.REDSTONE_WIRE) {
+		if (test == this || test == ModBlocks.BLUESTONE_WIRE) {
 			worldIn.notifyNeighborsOfStateChange(pos, this);
 
 			for (Direction direction : Direction.values()) {
@@ -192,7 +190,7 @@ public class RedstonePipeBlock extends Block
 
 	private int maxSignal(int existingSignal, BlockState neighbor) {
 		Block test = neighbor.getBlock();
-		if (test != this && test != Blocks.REDSTONE_WIRE) {
+		if (test != this && test != ModBlocks.BLUESTONE_WIRE) {
 			return existingSignal;
 		} else {
 			int i = neighbor.get(POWER);
@@ -221,9 +219,9 @@ public class RedstonePipeBlock extends Block
 	protected static boolean canConnectTo(BlockState blockState, IBlockReader world, BlockPos pos,
 			@Nullable Direction side) {
 		Block block = blockState.getBlock();
-		if (block == Blocks.REDSTONE_WIRE || block == ModBlocks.REDSTONE_PIPE_BLOCK) {
+		if (block == ModBlocks.BLUESTONE_WIRE || block == ModBlocks.BLUESTONE_PIPE_BLOCK) {
 			return true;
-		} else if (block == ModBlocks.BLUESTONE_WIRE || block == ModBlocks.BLUESTONE_PIPE_BLOCK) {
+		} else if (block == Blocks.REDSTONE_WIRE || block == ModBlocks.REDSTONE_PIPE_BLOCK) {
 			return false;
 		} else if (block == Blocks.REPEATER) {
 			Direction direction = blockState.get(RepeaterBlock.HORIZONTAL_FACING);
@@ -243,13 +241,13 @@ public class RedstonePipeBlock extends Block
 	@OnlyIn(Dist.CLIENT)
 	public static int colorMultiplier(int power) {
 		float f = (float) power / 15.0F;
-		float f1 = f * 0.6F + 0.4F;
+		float f3 = f * 0.6F + 0.4F;
 		if (power == 0) {
-			f1 = 0.3F;
+			f3 = 0.3F;
 		}
 
 		float f2 = f * f * 0.7F - 0.5F;
-		float f3 = f * f * 0.6F - 0.7F;
+		float f1 = f * f * 0.6F - 0.7F;
 
 		int i = MathHelper.clamp((int) (f1 * 255.0F), 0, 255);
 		int j = MathHelper.clamp((int) (f2 * 255.0F), 0, 255);
@@ -272,27 +270,10 @@ public class RedstonePipeBlock extends Block
 			double d1 = (double) pos.getY() + 0.5D + ((double) rand.nextFloat() - 0.5D) * 0.8D;
 			double d2 = (double) pos.getZ() + 0.5D + ((double) rand.nextFloat() - 0.5D) * 0.8D;
 			float f = (float) i / 15.0F;
-			float f1 = f * 0.6F + 0.4F;
+			float f3 = f * 0.6F + 0.4F;
 			float f2 = Math.max(0.0F, f * f * 0.7F - 0.5F);
-			float f3 = Math.max(0.0F, f * f * 0.6F - 0.7F);
+			float f1 = Math.max(0.0F, f * f * 0.6F - 0.7F);
 			worldIn.addParticle(new RedstoneParticleData(f1, f2, f3, 1.0F), d0, d1, d2, 0.0D, 0.0D, 0.0D);
-		}
-	}
-
-	/**
-	 * Maximum signal between input pipe/wire signal and the neighbor state
-	 * (It is public so patched wire code can call us)
-	 * @param existingSignal
-	 * @param neighbor
-	 * @return maximum pipe/wire signal
-	 */
-	public static int maxSignalHook(int existingSignal, BlockState neighbor) {
-		Block test = neighbor.getBlock();
-		if (test != ModBlocks.REDSTONE_PIPE_BLOCK && test != Blocks.REDSTONE_WIRE) {
-			return existingSignal;
-		} else {
-			int i = neighbor.get(POWER);
-			return i > existingSignal ? i : existingSignal;
 		}
 	}
 

@@ -23,6 +23,7 @@ public class ModBlocks
 	public static final Block REDSTONE_STRAIGHT_BLOCK = new RedstoneStraightBlock(Properties.create(Material.MISCELLANEOUS).hardnessAndResistance(0.0F).sound(SoundType.WOOD)).setRegistryName("redstone_straight_block");
 	public static final Block REDSTONE_ENERGY_BLOCK = new RedstoneEnergyBlock(Properties.create(Material.ROCK).hardnessAndResistance(3.5F)).setRegistryName("redstone_energy_block");
 	public static final Block BLUESTONE_WIRE = new BluestoneWireBlock(Properties.create(Material.MISCELLANEOUS).doesNotBlockMovement().hardnessAndResistance(0.0F)).setRegistryName("bluestone_wire");
+	public static final Block BLUESTONE_PIPE_BLOCK = new BluestonePipeBlock(Properties.create(Material.GLASS).notSolid().hardnessAndResistance(0.25F).sound(SoundType.GLASS)).setRegistryName("bluestone_pipe_block");
 
 	public static void register(IForgeRegistry<Block> forgeRegistry)
 	{
@@ -31,7 +32,7 @@ public class ModBlocks
 		forgeRegistry.registerAll(REDSTONE_PIPE_BLOCK, REDSTONE_PULSE_BLOCK, REDSTONE_RESISTOR_BLOCK);
 		forgeRegistry.registerAll(REDSTONE_BENDER_BLOCK, REDSTONE_TEE_BLOCK, REDSTONE_STRAIGHT_BLOCK);
 		forgeRegistry.register(REDSTONE_ENERGY_BLOCK);
-		forgeRegistry.register(BLUESTONE_WIRE);
+		forgeRegistry.registerAll(BLUESTONE_WIRE, BLUESTONE_PIPE_BLOCK);
 	}
 
 	@OnlyIn(Dist.CLIENT)
@@ -43,6 +44,7 @@ public class ModBlocks
 		RenderTypeLookup.setRenderLayer(REDSTONE_TEE_BLOCK, RenderType.getCutout());
 		RenderTypeLookup.setRenderLayer(REDSTONE_STRAIGHT_BLOCK, RenderType.getCutout());
 		RenderTypeLookup.setRenderLayer(BLUESTONE_WIRE, RenderType.getCutout());
+		RenderTypeLookup.setRenderLayer(BLUESTONE_PIPE_BLOCK, RenderType.getCutout());
 	}
 
 	@OnlyIn(Dist.CLIENT)
@@ -63,11 +65,15 @@ public class ModBlocks
 		blockColors.register((blockstate, lightreader, pos, index) -> {
 			return BluestoneWireBlock.colorMultiplier(blockstate.get(BluestoneWireBlock.POWER));
 		}, BLUESTONE_WIRE);
+		blockColors.register((blockstate, lightreader, pos, index) -> {
+			return BluestonePipeBlock.colorMultiplier(blockstate.get(BluestonePipeBlock.POWER));
+		}, BLUESTONE_PIPE_BLOCK);
 
 		blockColors.addColorState(RedstonePipeBlock.POWER, REDSTONE_PIPE_BLOCK);
 		blockColors.addColorState(RedstonePowerBlock.POWER, REDSTONE_POWER_BLOCK);
 		blockColors.addColorState(RedstoneBenderBlock.POWER, REDSTONE_BENDER_BLOCK, REDSTONE_TEE_BLOCK, REDSTONE_STRAIGHT_BLOCK);
 		blockColors.addColorState(RedstoneResistorBlock.RESISTANCE, REDSTONE_RESISTOR_BLOCK);
 		blockColors.addColorState(BluestoneWireBlock.POWER, BLUESTONE_WIRE);
+		blockColors.addColorState(BluestonePipeBlock.POWER, BLUESTONE_PIPE_BLOCK);
 	}
 }

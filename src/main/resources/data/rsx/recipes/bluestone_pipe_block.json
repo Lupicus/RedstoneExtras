@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":
+  [
+    "RRR",
+    "RGR",
+    "RRR"
+  ],
+  "key":
+  {
+    "R": { "item": "rsx:bluestone" },
+    "G": { "item": "minecraft:glass" }
+  },
+  "result": {
+    "item": "rsx:bluestone_pipe_block"
+  }
+}

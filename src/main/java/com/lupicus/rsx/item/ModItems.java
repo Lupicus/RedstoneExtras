@@ -29,6 +29,7 @@ public class ModItems
 	public static final Item REDSTONE_STRAIGHT_BLOCK = new BlockItem(ModBlocks.REDSTONE_STRAIGHT_BLOCK, new Properties().group(ItemGroup.REDSTONE)).setRegistryName("redstone_straight_block");
 	public static final Item REDSTONE_ENERGY_BLOCK = new BlockItem(ModBlocks.REDSTONE_ENERGY_BLOCK, new Properties().group(ItemGroup.REDSTONE)).setRegistryName("redstone_energy_block");
 	public static final Item BLUESTONE = new BlockNamedItem(ModBlocks.BLUESTONE_WIRE, new Item.Properties().group(ItemGroup.REDSTONE)).setRegistryName("bluestone");
+	public static final Item BLUESTONE_PIPE_BLOCK = new BlockItem(ModBlocks.BLUESTONE_PIPE_BLOCK, new Properties().group(ItemGroup.REDSTONE)).setRegistryName("bluestone_pipe_block");
 
 	public static void register(IForgeRegistry<Item> forgeRegistry)
 	{
@@ -37,7 +38,7 @@ public class ModItems
 		forgeRegistry.registerAll(REDSTONE_PIPE_BLOCK, REDSTONE_PULSE_BLOCK, REDSTONE_RESISTOR_BLOCK);
 		forgeRegistry.registerAll(REDSTONE_BENDER_BLOCK, REDSTONE_TEE_BLOCK, REDSTONE_STRAIGHT_BLOCK);
 		forgeRegistry.register(REDSTONE_ENERGY_BLOCK);
-		forgeRegistry.registerAll(BLUESTONE);
+		forgeRegistry.registerAll(BLUESTONE, BLUESTONE_PIPE_BLOCK);
 	}
 
 	@OnlyIn(Dist.CLIENT)
