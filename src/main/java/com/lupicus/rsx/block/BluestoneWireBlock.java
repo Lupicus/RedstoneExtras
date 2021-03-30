@@ -291,7 +291,7 @@ public class BluestoneWireBlock extends Block
 			for (Direction direction : Direction.Plane.HORIZONTAL) {
 				BlockPos blockpos = posIn.offset(direction);
 				BlockState blockstate1 = world.getBlockState(blockpos);
-				j = Math.max(j, getPower(blockstate1));
+				j = Math.max(j, getPower2(blockstate1));
 				if (blockstate1.isNormalCube(world, blockpos)) {
 					if (!isUpNormal)
 						j = Math.max(j, getPower(world.getBlockState(blockpos.up())));
@@ -306,6 +306,10 @@ public class BluestoneWireBlock extends Block
 
 	private int getPower(BlockState neighbor) {
 		return neighbor.isIn(this) ? neighbor.get(POWER) : 0;
+	}
+
+	private int getPower2(BlockState neighbor) {
+		return neighbor.isIn(this) || neighbor.isIn(ModBlocks.BLUESTONE_PIPE_BLOCK) ? neighbor.get(POWER) : 0;
 	}
 
 	/**

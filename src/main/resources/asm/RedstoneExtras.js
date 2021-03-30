@@ -1,7 +1,7 @@
 var asmapi = Java.type('net.minecraftforge.coremod.api.ASMAPI')
 var opc = Java.type('org.objectweb.asm.Opcodes')
 var AbstractInsnNode = Java.type('org.objectweb.asm.tree.AbstractInsnNode')
-var Label = Java.type('org.objectweb.asm.tree.LabelNode')
+var LabelNode = Java.type('org.objectweb.asm.tree.LabelNode')
 var VarInsnNode = Java.type('org.objectweb.asm.tree.VarInsnNode')
 var FieldInsnNode = Java.type('org.objectweb.asm.tree.FieldInsnNode')
 var JumpInsnNode = Java.type('org.objectweb.asm.tree.JumpInsnNode')
@@ -66,12 +66,12 @@ function patch_func_235546_a_(obj) {
 		asmapi.log("ERROR", "Failed to modify RedstoneWireBlock: call not found")
 }
 
-// add the test: if (block == ModBlocks.BLUESTONE_WIRE) return false;
+// add the test: if (blockState.isIn(ModBlocks.BLUESTONE_WIRE) || blockState.isIn(ModBlocks.BLUESTONE_PIPE_BLOCK)) return false;
 function patch_canConnectTo(obj) {
 	var wire = asmapi.mapField('field_150488_af') // REDSTONE_WIRE
 	var node = asmapi.findFirstInstruction(obj, opc.GETSTATIC)
 	if (node && node.name == wire) {
-		node2 = node
+		var node2 = node
 		for (var i = 0; i < 7; ++i)
 		{
 			node2 = node2.getNext()
@@ -81,14 +81,19 @@ function patch_canConnectTo(obj) {
 		if (node2 && node2.getType() == AbstractInsnNode.LABEL)
 		{
 			var fn = asmapi.mapMethod('func_203425_a') // isIn
-			var op7 = new Label()
+			var op12 = new LabelNode()
+			var op9 = new LabelNode()
 			var op1 = new VarInsnNode(opc.ALOAD, 0)
 			var op2 = new FieldInsnNode(opc.GETSTATIC, "com/lupicus/rsx/block/ModBlocks", "BLUESTONE_WIRE", "Lnet/minecraft/block/Block;")
 			var op3 = asmapi.buildMethodCall("net/minecraft/block/BlockState", fn, "(Lnet/minecraft/block/Block;)Z", asmapi.MethodType.VIRTUAL)
-			var op4 = new JumpInsnNode(opc.IFEQ, op7)
-			var op5 = new InsnNode(opc.ICONST_0)
-			var op6 = new InsnNode(opc.IRETURN)
-			var list = asmapi.listOf(op1, op2, op3, op4, op5, op6, op7)
+			var op4 = new JumpInsnNode(opc.IFNE, op9)
+			var op5 = new VarInsnNode(opc.ALOAD, 0)
+			var op6 = new FieldInsnNode(opc.GETSTATIC, "com/lupicus/rsx/block/ModBlocks", "BLUESTONE_PIPE_BLOCK", "Lnet/minecraft/block/Block;")
+			var op7 = asmapi.buildMethodCall("net/minecraft/block/BlockState", fn, "(Lnet/minecraft/block/Block;)Z", asmapi.MethodType.VIRTUAL)
+			var op8 = new JumpInsnNode(opc.IFEQ, op12)
+			var op10 = new InsnNode(opc.ICONST_0)
+			var op11 = new InsnNode(opc.IRETURN)
+			var list = asmapi.listOf(op1, op2, op3, op4, op5, op6, op7, op8, op9, op10, op11, op12)
 			obj.instructions.insert(node2, list)
 		}
 		else

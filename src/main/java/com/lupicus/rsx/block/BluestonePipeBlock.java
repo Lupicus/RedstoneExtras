@@ -35,17 +35,15 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class RedstonePipeBlock extends Block
+public class BluestonePipeBlock extends Block
 {
-	public static final EnumProperty<RedstoneSide> REDSTONE_UP = EnumProperty.create("up", RedstoneSide.class);
-	public static final EnumProperty<RedstoneSide> REDSTONE_DOWN = EnumProperty.create("down", RedstoneSide.class);
-	public static final EnumProperty<RedstoneSide> UP = REDSTONE_UP;
-	public static final EnumProperty<RedstoneSide> DOWN = REDSTONE_DOWN;
+	public static final EnumProperty<RedstoneSide> UP = RedstonePipeBlock.REDSTONE_UP;
+	public static final EnumProperty<RedstoneSide> DOWN = RedstonePipeBlock.REDSTONE_DOWN;
 	public static final EnumProperty<RedstoneSide> NORTH = BlockStateProperties.REDSTONE_NORTH;
 	public static final EnumProperty<RedstoneSide> EAST = BlockStateProperties.REDSTONE_EAST;
 	public static final EnumProperty<RedstoneSide> SOUTH = BlockStateProperties.REDSTONE_SOUTH;
 	public static final EnumProperty<RedstoneSide> WEST = BlockStateProperties.REDSTONE_WEST;
-	public static final IntegerProperty POWER = RedstoneWireBlock.POWER; // == BlockStateProperties.POWER_0_15;
+	public static final IntegerProperty POWER = BluestoneWireBlock.POWER; // == BlockStateProperties.POWER_0_15;
 	public static final Map<Direction, EnumProperty<RedstoneSide>> FACING_PROPERTY_MAP = Maps.newEnumMap(ImmutableMap.<Direction, EnumProperty<RedstoneSide>>builder()
 			.put(Direction.NORTH, NORTH)
 			.put(Direction.EAST, EAST)
@@ -57,7 +55,7 @@ public class RedstonePipeBlock extends Block
 	private static final Vector3f[] COLORS = new Vector3f[16];
 	private RedstoneWireBlock wire = (RedstoneWireBlock) Blocks.REDSTONE_WIRE;
 
-	public RedstonePipeBlock(Properties properties)
+	public BluestonePipeBlock(Properties properties)
 	{
 		super(properties);
 		setDefaultState(stateContainer.getBaseState().with(NORTH, RedstoneSide.NONE).with(EAST, RedstoneSide.NONE)
@@ -130,11 +128,11 @@ public class RedstonePipeBlock extends Block
 
 	/**
 	 * Calls World.notifyNeighborsOfStateChange() for all neighboring blocks, but
-	 * only if the given block is a redstone wire.
+	 * only if the given block is a bluestone wire.
 	 */
 	private void notifyWireNeighborsOfStateChange(World worldIn, BlockPos pos) {
 		BlockState state = worldIn.getBlockState(pos);
-		if (state.isIn(this) || state.isIn(Blocks.REDSTONE_WIRE)) {
+		if (state.isIn(this) || state.isIn(ModBlocks.BLUESTONE_WIRE)) {
 			worldIn.notifyNeighborsOfStateChange(pos, this);
 
 			for (Direction direction : Direction.values()) {
@@ -174,7 +172,7 @@ public class RedstonePipeBlock extends Block
 	}
 
 	private int getPower(BlockState neighbor) {
-		return neighbor.isIn(this) || neighbor.isIn(Blocks.REDSTONE_WIRE) ? neighbor.get(POWER) : 0;
+		return neighbor.isIn(this) || neighbor.isIn(ModBlocks.BLUESTONE_WIRE) ? neighbor.get(POWER) : 0;
 	}
 
 	@Override
@@ -197,9 +195,9 @@ public class RedstonePipeBlock extends Block
 
 	protected static boolean canConnectTo(BlockState blockState, IBlockReader world, BlockPos pos,
 			@Nullable Direction side) {
-		if (blockState.isIn(Blocks.REDSTONE_WIRE) || blockState.isIn(ModBlocks.REDSTONE_PIPE_BLOCK)) {
+		if (blockState.isIn(ModBlocks.BLUESTONE_WIRE) || blockState.isIn(ModBlocks.BLUESTONE_PIPE_BLOCK)) {
 			return true;
-		} else if (blockState.isIn(ModBlocks.BLUESTONE_WIRE) || blockState.isIn(ModBlocks.BLUESTONE_PIPE_BLOCK)) {
+		} else if (blockState.isIn(Blocks.REDSTONE_WIRE) || blockState.isIn(ModBlocks.REDSTONE_PIPE_BLOCK)) {
 			return false;
 		} else if (blockState.isIn(Blocks.REPEATER)) {
 			Direction direction = blockState.get(RepeaterBlock.HORIZONTAL_FACING);
@@ -241,16 +239,6 @@ public class RedstonePipeBlock extends Block
 		}
 	}
 
-	/**
-	 * Get power of neighbor pipe/wire
-	 * (It is public so patched wire code can call us)
-	 * @param neighbor
-	 * @return get pipe/wire power
-	 */
-	public static int getPowerHook(BlockState neighbor) {
-		return neighbor.isIn(ModBlocks.REDSTONE_PIPE_BLOCK) || neighbor.isIn(Blocks.REDSTONE_WIRE) ? neighbor.get(POWER) : 0;
-	}
-
 	@Override
 	public BlockState rotate(BlockState state, Rotation rot) {
 		switch (rot) {
@@ -289,9 +277,9 @@ public class RedstonePipeBlock extends Block
 	static {
 		for (int i = 0; i <= 15; ++i) {
 			float f = (float) i / 15.0F;
-			float f1 = f * 0.6F + (f > 0.0F ? 0.4F : 0.3F);
+			float f3 = f * 0.6F + (f > 0.0F ? 0.4F : 0.3F);
 			float f2 = MathHelper.clamp(f * f * 0.7F - 0.5F, 0.0F, 1.0F);
-			float f3 = MathHelper.clamp(f * f * 0.6F - 0.7F, 0.0F, 1.0F);
+			float f1 = MathHelper.clamp(f * f * 0.6F - 0.7F, 0.0F, 1.0F);
 			COLORS[i] = new Vector3f(f1, f2, f3);
 		}
 	}

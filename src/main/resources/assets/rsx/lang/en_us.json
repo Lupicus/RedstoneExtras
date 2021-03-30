@@ -9,6 +9,7 @@
 	"block.rsx.redstone_straight_block": "Redstone Straight",
 	"block.rsx.redstone_resistor_block": "Redstone Resistor",
 	"block.rsx.bluestone_wire_block": "Bluestone Wire",
+	"block.rsx.bluestone_pipe_block": "Bluestone Pipe",
 	"item.rsx.bluestone": "Bluestone Dust",
 	"subtitles.rsx.redstone_pulse_block.click": "Redstone Pulse Block clicks"
 }
