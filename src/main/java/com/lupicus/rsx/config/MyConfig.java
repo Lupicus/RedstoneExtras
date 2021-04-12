@@ -51,7 +51,7 @@ public class MyConfig
 			energyFactor = builder
 					.comment("Energy Factor")
 					.translation(sectionTrans + "energy_factor")
-					.defineInRange("EnergyFactor", () -> 0.3, 0.0, 1.0);
+					.defineInRange("EnergyFactor", () -> 0.334, 0.0, 1.0);
 		}
 	}
 }

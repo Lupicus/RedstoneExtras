@@ -11,7 +11,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 
@@ -159,7 +158,7 @@ public class RedstoneEnergyTileEntity extends TileEntity implements IEnergyStora
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
 		if (cap == CapabilityEnergy.ENERGY)
-			return LazyOptional.of((NonNullSupplier<T>) this);
+			return LazyOptional.of(() -> (T) this);
 		return super.getCapability(cap, side);
 	}
 
