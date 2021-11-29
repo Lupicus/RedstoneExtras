@@ -1,68 +1,68 @@
 package com.lupicus.rsx.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.state.IntegerProperty;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class RedstonePowerBlock extends Block
 {
-	public static final IntegerProperty POWER = BlockStateProperties.POWER_0_15;
+	public static final IntegerProperty POWER = BlockStateProperties.POWER;
 
 	public RedstonePowerBlock(Properties properties) {
 		super(properties);
-		this.setDefaultState(
-				this.stateContainer.getBaseState()
-				.with(POWER, Integer.valueOf(15)));
+		registerDefaultState(
+				stateDefinition.any()
+				.setValue(POWER, Integer.valueOf(15)));
 	}
 
-	public static boolean isNormalCube(BlockState state, IBlockReader worldIn, BlockPos pos) {
+	public static boolean isNormalCube(BlockState state, BlockGetter worldIn, BlockPos pos) {
 		return false;
 	}
 
 	@Override
-	public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player,
-			Hand handIn, BlockRayTraceResult result) {
-		if (!player.abilities.allowEdit) {
-			return ActionResultType.PASS;
+	public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player,
+			InteractionHand handIn, BlockHitResult result) {
+		if (!player.mayBuild()) {
+			return InteractionResult.PASS;
 		} else {
-			int i = state.get(POWER);
-			if (player.isSneaking()) {
+			int i = state.getValue(POWER);
+			if (player.isSecondaryUseActive()) {
 				i = (i > 0) ? i - 1 : 15; 
 			}
 			else {
 				i = (i < 15) ? i + 1 : 0;
 			}
-			worldIn.setBlockState(pos, state.with(POWER, Integer.valueOf(i)), 3);
-			return ActionResultType.SUCCESS;
+			worldIn.setBlock(pos, state.setValue(POWER, Integer.valueOf(i)), 3);
+			return InteractionResult.SUCCESS;
 		}
 	}
 
 	@Override
-	public boolean canProvidePower(BlockState state) {
+	public boolean isSignalSource(BlockState state) {
 		return true;
 	}
 
 	@Override
-	public int getStrongPower(BlockState blockState, IBlockReader blockAccess, BlockPos pos, Direction side) {
-		return getWeakPower(blockState, blockAccess, pos, side);
+	public int getDirectSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+		return getSignal(blockState, blockAccess, pos, side);
 	}
 
 	@Override
-	public int getWeakPower(BlockState blockState, IBlockReader blockAccess, BlockPos pos, Direction side) {
-		return blockState.get(POWER);
+	public int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+		return blockState.getValue(POWER);
 	}
 
 	@OnlyIn(Dist.CLIENT)
@@ -76,14 +76,14 @@ public class RedstonePowerBlock extends Block
 		float f2 = f * f * 0.7F - 0.5F;
 		float f3 = f * f * 0.6F - 0.7F;
 
-		int i = MathHelper.clamp((int) (f1 * 255.0F), 0, 255);
-		int j = MathHelper.clamp((int) (f2 * 255.0F), 0, 255);
-		int k = MathHelper.clamp((int) (f3 * 255.0F), 0, 255);
+		int i = Mth.clamp((int) (f1 * 255.0F), 0, 255);
+		int j = Mth.clamp((int) (f2 * 255.0F), 0, 255);
+		int k = Mth.clamp((int) (f3 * 255.0F), 0, 255);
 		return -16777216 | i << 16 | j << 8 | k;
 	}
 
 	@Override
-	protected void fillStateContainer(Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(POWER);
 	}
 }

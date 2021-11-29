@@ -2,104 +2,105 @@ package com.lupicus.rsx.block;
 
 import java.util.Random;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.RedstoneDiodeBlock;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.IntegerProperty;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DiodeBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class RedstoneResistorBlock extends RedstoneDiodeBlock
+public class RedstoneResistorBlock extends DiodeBlock
 {
 	public static final IntegerProperty RESISTANCE = IntegerProperty.create("resistance", 0, 15);
-	public static final IntegerProperty POWER = BlockStateProperties.POWER_0_15;
+	public static final IntegerProperty POWER = BlockStateProperties.POWER;
 
 	protected RedstoneResistorBlock(Properties builder) {
 		super(builder);
-		this.setDefaultState(
-				this.stateContainer.getBaseState()
-				.with(HORIZONTAL_FACING, Direction.NORTH)
-				.with(RESISTANCE, 0)
-				.with(POWER, 0));
+		registerDefaultState(
+				stateDefinition.any()
+				.setValue(FACING, Direction.NORTH)
+				.setValue(RESISTANCE, 0)
+				.setValue(POWER, 0));
 	}
 
 	@Override
-	public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player,
-			Hand handIn, BlockRayTraceResult result) {
-		if (!player.abilities.allowEdit) {
-			return ActionResultType.PASS;
+	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player,
+			InteractionHand handIn, BlockHitResult result) {
+		if (!player.mayBuild()) {
+			return InteractionResult.PASS;
 		} else {
-			int i = state.get(RESISTANCE);
-			if (player.isSneaking()) {
+			int i = state.getValue(RESISTANCE);
+			if (player.isSecondaryUseActive()) {
 				i = (i > 0) ? i - 1 : 15;
 			}
 			else {
 				i = (i < 15) ? i + 1 : 0;
 			}
-			world.setBlockState(pos, state.with(RESISTANCE, Integer.valueOf(i)), 2);
-			notifyNeighbors(world, pos, state);
-			return ActionResultType.SUCCESS;
+			world.setBlock(pos, state.setValue(RESISTANCE, Integer.valueOf(i)), 2);
+			updateNeighborsInFront(world, pos, state);
+			return InteractionResult.SUCCESS;
 		}
 	}
 
 	@Override
-	public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack)
+	public void setPlacedBy(Level worldIn, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack)
 	{
-		updateState(worldIn, pos, state);
+		checkTickOnNeighbor(worldIn, pos, state);
 	}
 
 	@Override
-	public void tick(BlockState state, ServerWorld worldIn, BlockPos pos, Random rand) {
+	public void tick(BlockState state, ServerLevel worldIn, BlockPos pos, Random rand) {
 	}
 
 	@Override
-	protected void updateState(World world, BlockPos pos, BlockState state)
+	protected void checkTickOnNeighbor(Level world, BlockPos pos, BlockState state)
 	{
-		if (!world.isRemote)
+		if (!world.isClientSide)
 		{
-			int i = state.get(POWER);
-			int j = calculateInputStrength(world, pos, state);
+			int i = state.getValue(POWER);
+			int j = getInputSignal(world, pos, state);
 			if (i != j)
 			{
-				state = state.with(POWER, Integer.valueOf(j));
-				world.setBlockState(pos, state, 3);
+				state = state.setValue(POWER, Integer.valueOf(j));
+				world.setBlock(pos, state, 3);
 			}
 		}
 	}
 
 	@Override
-	public int getStrongPower(BlockState blockState, IBlockReader blockAccess, BlockPos pos, Direction side) {
-		return getWeakPower(blockState, blockAccess, pos, side);
+	public int getDirectSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+		return getSignal(blockState, blockAccess, pos, side);
 	}
 
 	@Override
-	public int getWeakPower(BlockState blockState, IBlockReader blockAccess, BlockPos pos, Direction side) {
-		return blockState.get(HORIZONTAL_FACING) == side ? this.getActiveSignal(blockAccess, pos, blockState) : 0;
+	public int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+		return blockState.getValue(FACING) == side ? this.getOutputSignal(blockAccess, pos, blockState) : 0;
 	}
 
 	@Override
-	protected int getActiveSignal(IBlockReader worldIn, BlockPos pos, BlockState state) {
-		int output = state.get(POWER) - state.get(RESISTANCE);
+	protected int getOutputSignal(BlockGetter worldIn, BlockPos pos, BlockState state) {
+		int output = state.getValue(POWER) - state.getValue(RESISTANCE);
 		return output <= 0 ? 0 : output;
 	}
 
 	@Override
-	public boolean canConnectRedstone(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
-		Direction facing = state.get(HORIZONTAL_FACING);
+	public boolean canConnectRedstone(BlockState state, BlockGetter world, BlockPos pos, Direction side) {
+		Direction facing = state.getValue(FACING);
 		return facing == side || facing.getOpposite() == side;
 	}
 
@@ -110,11 +111,12 @@ public class RedstoneResistorBlock extends RedstoneDiodeBlock
 
 	@OnlyIn(Dist.CLIENT)
 	public static int colorMultiplier(int resistance) {
-		return DyeColor.byId(resistance).getColorValue();
+		float[] vals = DyeColor.byId(resistance).getTextureDiffuseColors();
+		return Mth.color(vals[0], vals[1], vals[2]);
 	}
 
 	@Override
-	protected void fillStateContainer(Builder<Block, BlockState> builder) {
-		builder.add(HORIZONTAL_FACING, RESISTANCE, POWER);
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		builder.add(FACING, RESISTANCE, POWER);
 	}
 }

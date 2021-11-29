@@ -12,24 +12,19 @@ function initializeCoreMod() {
     	'redstoneWire': {
     		'target': {
     			'type': 'CLASS',
-    			'name': 'net.minecraft.block.RedstoneWireBlock'
+    			'name': 'net.minecraft.world.level.block.RedStoneWireBlock'
     		},
     		'transformer': function(classNode) {
     			var count = 0
-    			var fn = asmapi.mapMethod('func_235546_a_') // func_235546_a_
-    			var fn2 = 'canConnectTo'
+    			var fn = asmapi.mapMethod('m_55527_') // calculateTargetStrength
     			for (var i = 0; i < classNode.methods.size(); ++i) {
     				var obj = classNode.methods.get(i)
     				if (obj.name == fn) {
-    					patch_func_235546_a_(obj)
-    					count++
-    				}
-    				else if (obj.name == fn2) {
-    					patch_canConnectTo(obj)
+    					patch_m_55527_(obj)
     					count++
     				}
     			}
-    			if (count < 2)
+    			if (count < 1)
     				asmapi.log("ERROR", "Failed to modify RedstoneWireBlock: Method not found")
     			return classNode;
     		}
@@ -37,24 +32,24 @@ function initializeCoreMod() {
     }
 }
 
-// replace first call (of 3) to getPower with RedstonePipeBlock::getPowerHook
-function patch_func_235546_a_(obj) {
-	var fn = asmapi.mapMethod('func_235557_o_') // getPower
-	var owner = "net/minecraft/block/RedstoneWireBlock"
-	var desc = "(Lnet/minecraft/block/BlockState;)I"
-	var node = asmapi.findFirstMethodCall(obj, asmapi.MethodType.SPECIAL, owner, fn, desc)
+// replace first call (of 3) to getWireSignal with RedstonePipeBlock::getLineSignalHook
+function patch_m_55527_(obj) {
+	var fn = asmapi.mapMethod('m_55648_') // getWireSignal
+	var owner = "net/minecraft/world/level/block/RedStoneWireBlock"
+	var desc = "(Lnet/minecraft/world/level/block/state/BlockState;)I"
+	var node = asmapi.findFirstMethodCall(obj, asmapi.MethodType.VIRTUAL, owner, fn, desc)
 	if (node) {
 		var count = 1
 		var index = obj.instructions.indexOf(node)
 		while (true) {
-			var node2 = asmapi.findFirstMethodCallAfter(obj, asmapi.MethodType.SPECIAL, owner, fn, desc, index + 1)
+			var node2 = asmapi.findFirstMethodCallAfter(obj, asmapi.MethodType.VIRTUAL, owner, fn, desc, index + 1)
 			if (node2 == null) break
 			count++
 			index = obj.instructions.indexOf(node2)
 		}
 		if (count == 3)
 		{
-			var call2 = asmapi.buildMethodCall("com/lupicus/rsx/block/RedstonePipeBlock", "getPowerHook", desc, asmapi.MethodType.STATIC)
+			var call2 = asmapi.buildMethodCall("com/lupicus/rsx/block/RedstonePipeBlock", "getLineSignalHook", desc, asmapi.MethodType.STATIC)
 			obj.instructions.remove(node.getPrevious().getPrevious())  // remove this argument
 			obj.instructions.insertBefore(node, call2)
 			obj.instructions.remove(node)
@@ -64,41 +59,4 @@ function patch_func_235546_a_(obj) {
 	}
 	else
 		asmapi.log("ERROR", "Failed to modify RedstoneWireBlock: call not found")
-}
-
-// add the test: if (blockState.isIn(ModBlocks.BLUESTONE_WIRE) || blockState.isIn(ModBlocks.BLUESTONE_PIPE_BLOCK)) return false;
-function patch_canConnectTo(obj) {
-	var wire = asmapi.mapField('field_150488_af') // REDSTONE_WIRE
-	var node = asmapi.findFirstInstruction(obj, opc.GETSTATIC)
-	if (node && node.name == wire) {
-		var node2 = node
-		for (var i = 0; i < 7; ++i)
-		{
-			node2 = node2.getNext()
-			if (node2 == null)
-				break
-		}
-		if (node2 && node2.getType() == AbstractInsnNode.LABEL)
-		{
-			var fn = asmapi.mapMethod('func_203425_a') // isIn
-			var op12 = new LabelNode()
-			var op9 = new LabelNode()
-			var op1 = new VarInsnNode(opc.ALOAD, 0)
-			var op2 = new FieldInsnNode(opc.GETSTATIC, "com/lupicus/rsx/block/ModBlocks", "BLUESTONE_WIRE", "Lnet/minecraft/block/Block;")
-			var op3 = asmapi.buildMethodCall("net/minecraft/block/BlockState", fn, "(Lnet/minecraft/block/Block;)Z", asmapi.MethodType.VIRTUAL)
-			var op4 = new JumpInsnNode(opc.IFNE, op9)
-			var op5 = new VarInsnNode(opc.ALOAD, 0)
-			var op6 = new FieldInsnNode(opc.GETSTATIC, "com/lupicus/rsx/block/ModBlocks", "BLUESTONE_PIPE_BLOCK", "Lnet/minecraft/block/Block;")
-			var op7 = asmapi.buildMethodCall("net/minecraft/block/BlockState", fn, "(Lnet/minecraft/block/Block;)Z", asmapi.MethodType.VIRTUAL)
-			var op8 = new JumpInsnNode(opc.IFEQ, op12)
-			var op10 = new InsnNode(opc.ICONST_0)
-			var op11 = new InsnNode(opc.IRETURN)
-			var list = asmapi.listOf(op1, op2, op3, op4, op5, op6, op7, op8, op9, op10, op11, op12)
-			obj.instructions.insert(node2, list)
-		}
-		else
-			asmapi.log("ERROR", "Failed to modify RedstoneWireBlock: Label not found")
-	}
-	else
-		asmapi.log("ERROR", "Failed to modify RedstoneWireBlock: GETSTATIC not found")
 }

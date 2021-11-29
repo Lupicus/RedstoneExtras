@@ -4,28 +4,28 @@ import java.util.Random;
 
 import com.lupicus.rsx.sound.ModSounds;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.RedstoneDiodeBlock;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DiodeBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.BlockHitResult;
 
-public class RedstonePulseBlock extends RedstoneDiodeBlock
+public class RedstonePulseBlock extends DiodeBlock
 {
 	public static final BooleanProperty PULSE = BooleanProperty.create("pulse");
 	public static final EnumProperty<PulseStrength> STRENGTH = EnumProperty.create("strength", PulseStrength.class);
@@ -33,93 +33,93 @@ public class RedstonePulseBlock extends RedstoneDiodeBlock
 
 	public RedstonePulseBlock(Properties properties) {
 		super(properties);
-		this.setDefaultState(
-				this.stateContainer.getBaseState()
-				.with(HORIZONTAL_FACING, Direction.NORTH)
-				.with(STRENGTH, PulseStrength.HIGH)
-				.with(PULSE, Boolean.valueOf(false))
-				.with(POWERED, false)
-				.with(INVERTED, false));
+		registerDefaultState(
+				stateDefinition.any()
+				.setValue(FACING, Direction.NORTH)
+				.setValue(STRENGTH, PulseStrength.HIGH)
+				.setValue(PULSE, Boolean.valueOf(false))
+				.setValue(POWERED, false)
+				.setValue(INVERTED, false));
 	}
 
 	@Override
-	public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player,
-			Hand handIn, BlockRayTraceResult result) {
-		if (!player.abilities.allowEdit) {
-			return ActionResultType.PASS;
+	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player,
+			InteractionHand handIn, BlockHitResult result) {
+		if (!player.mayBuild()) {
+			return InteractionResult.PASS;
 		} else {
 			float f;
-			if (player.isSneaking()) {
-				state = state.func_235896_a_(STRENGTH); // cycle
-				f = state.get(STRENGTH) == PulseStrength.LOW ? 0.5F : 0.55F;
+			if (player.isSecondaryUseActive()) {
+				state = state.cycle(STRENGTH);
+				f = state.getValue(STRENGTH) == PulseStrength.LOW ? 0.5F : 0.55F;
 			}
 			else {
-				state = state.func_235896_a_(INVERTED); // cycle
-				f = state.get(INVERTED) ? 0.5F : 0.55F;
+				state = state.cycle(INVERTED);
+				f = state.getValue(INVERTED) ? 0.5F : 0.55F;
 			}
-			world.playSound(player, pos, ModSounds.REDSTONE_PULSE_CLICK, SoundCategory.BLOCKS, 0.3F, f);
-			world.setBlockState(pos, state, 2);
-			return ActionResultType.SUCCESS;
+			world.playSound(player, pos, ModSounds.REDSTONE_PULSE_CLICK, SoundSource.BLOCKS, 0.3F, f);
+			world.setBlock(pos, state, 2);
+			return InteractionResult.SUCCESS;
 		}
 	}
 
 	@Override
-	public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack)
+	public void setPlacedBy(Level worldIn, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack)
 	{
-		updateState(worldIn, pos, state);
+		checkTickOnNeighbor(worldIn, pos, state);
 	}
 
 	@Override
-	protected void updateState(World world, BlockPos pos, BlockState state)
+	protected void checkTickOnNeighbor(Level world, BlockPos pos, BlockState state)
 	{
-		if (!world.isRemote)
+		if (!world.isClientSide)
 		{
-			boolean flag = state.get(POWERED);
-			boolean flag1 = shouldBePowered(world, pos, state);
+			boolean flag = state.getValue(POWERED);
+			boolean flag1 = shouldTurnOn(world, pos, state);
 			if (flag != flag1)
 			{
 				boolean flag2 = flag1;
-				if (state.get(INVERTED)) flag2 = !flag2;
+				if (state.getValue(INVERTED)) flag2 = !flag2;
 				if (flag2)
 				{
-					world.getPendingBlockTicks().scheduleTick(pos, this, 1);
-					state = state.with(POWERED, flag1).with(PULSE, true);
-					world.setBlockState(pos, state, 3);
+					world.getBlockTicks().scheduleTick(pos, this, 1);
+					state = state.setValue(POWERED, flag1).setValue(PULSE, true);
+					world.setBlock(pos, state, 3);
 				}
 				else
 				{
-					state = state.with(POWERED, flag1);
-					world.setBlockState(pos, state, 2);
+					state = state.setValue(POWERED, flag1);
+					world.setBlock(pos, state, 2);
 				}
 			}
 		}
 	}
 
 	@Override
-	public int getStrongPower(BlockState blockState, IBlockReader blockAccess, BlockPos pos, Direction side) {
-		return getWeakPower(blockState, blockAccess, pos, side);
+	public int getDirectSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+		return getSignal(blockState, blockAccess, pos, side);
 	}
 
 	@Override
-	public int getWeakPower(BlockState blockState, IBlockReader blockAccess, BlockPos pos, Direction side) {
-		return blockState.get(HORIZONTAL_FACING) == side ? this.getActiveSignal(blockAccess, pos, blockState) : 0;
+	public int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+		return blockState.getValue(FACING) == side ? this.getOutputSignal(blockAccess, pos, blockState) : 0;
 	}
 
 	@Override
-	public void tick(BlockState state, ServerWorld world, BlockPos pos, Random rand) {
-		world.setBlockState(pos, state.with(PULSE, false), 3);
+	public void tick(BlockState state, ServerLevel world, BlockPos pos, Random rand) {
+		world.setBlock(pos, state.setValue(PULSE, false), 3);
 	}
 
 	@Override
-	protected int getActiveSignal(IBlockReader worldIn, BlockPos pos, BlockState state) {
-		if (state.get(PULSE))
-			return state.get(STRENGTH) == PulseStrength.HIGH ? 15 : 1;
+	protected int getOutputSignal(BlockGetter worldIn, BlockPos pos, BlockState state) {
+		if (state.getValue(PULSE))
+			return state.getValue(STRENGTH) == PulseStrength.HIGH ? 15 : 1;
 		return 0;
 	}
 
 	@Override
-	public boolean canConnectRedstone(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
-		Direction facing = state.get(HORIZONTAL_FACING);
+	public boolean canConnectRedstone(BlockState state, BlockGetter world, BlockPos pos, Direction side) {
+		Direction facing = state.getValue(FACING);
 		return facing == side || facing.getOpposite() == side;
 	}
 
@@ -129,11 +129,11 @@ public class RedstonePulseBlock extends RedstoneDiodeBlock
 	}
 
 	@Override
-	protected void fillStateContainer(Builder<Block, BlockState> builder) {
-		builder.add(HORIZONTAL_FACING, STRENGTH, PULSE, POWERED, INVERTED);
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		builder.add(FACING, STRENGTH, PULSE, POWERED, INVERTED);
 	}
 
-	public enum PulseStrength implements IStringSerializable
+	public enum PulseStrength implements StringRepresentable
 	{
 		LOW("low"),
 		HIGH("high");
@@ -146,11 +146,11 @@ public class RedstonePulseBlock extends RedstoneDiodeBlock
 
 		@Override
 		public String toString() {
-			return this.func_176610_l(); // getName
+			return this.getSerializedName();
 		}
 
 		@Override
-		public String func_176610_l() { // getName
+		public String getSerializedName() {
 			return this.name;
 		}
 	}

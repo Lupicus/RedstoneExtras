@@ -1,70 +1,87 @@
 package com.lupicus.rsx.block;
 
-import com.lupicus.rsx.tileentity.DaytimeSensorTileEntity;
+import javax.annotation.Nullable;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.DaylightDetectorBlock;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import com.lupicus.rsx.tileentity.DaytimeSensorTileEntity;
+import com.lupicus.rsx.tileentity.ModTileEntities;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.DaylightDetectorBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 
 public class DaytimeSensorBlock extends DaylightDetectorBlock
 {
 	private static long time;
-	private static RegistryKey<World> dim;
-	private static int skylightSubtracted;
+	private static ResourceKey<Level> dim;
+	private static int skyDarken;
 
 	public DaytimeSensorBlock(Properties properties) {
 		super(properties);
 	}
 
-	public static void updatePower(BlockState state, World world, BlockPos pos) {
+	private static void updateSignalStrength(BlockState state, Level world, BlockPos pos)
+	{
 		long time = world.getDayTime();
-		RegistryKey<World> curdim = world.func_234923_W_();
+		ResourceKey<Level> curdim = world.dimension();
 		if (time != DaytimeSensorBlock.time || curdim != dim)
 		{
 			DaytimeSensorBlock.time = time;
 			dim = curdim;
-			// calculateInitialSkylight without rain and thunder
-			double d2 = 0.5D + 2.0D * MathHelper
-					.clamp((double) MathHelper.cos(world.func_242415_f(1.0F) * ((float) Math.PI * 2F)), -0.25D, 0.25D); // getCelestialAngle
-			skylightSubtracted = (int) ((1.0D - d2) * 11.0D);
+			// updateSkyBrightness without rain and thunder
+			double d2 = 0.5D + 2.0D * Mth
+					.clamp((double) Mth.cos(world.getSunAngle(1.0F)), -0.25D, 0.25D);
+			skyDarken = (int) ((1.0D - d2) * 11.0D);
 		}
-		int i = (skylightSubtracted < 4) ? 15 : 0;
-		if (state.get(INVERTED)) {
+		int i = (skyDarken < 4) ? 15 : 0;
+		if (state.getValue(INVERTED)) {
 			i = 15 - i;
 		}
-		if (state.get(POWER) != i) {
-			world.setBlockState(pos, state.with(POWER, Integer.valueOf(i)), 3);
+		if (state.getValue(POWER) != i) {
+			world.setBlock(pos, state.setValue(POWER, Integer.valueOf(i)), 3);
 		}
 	}
 
 	@Override
-	public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player,
-			Hand handIn, BlockRayTraceResult result) {
-		if (player.isAllowEdit()) {
-			if (worldIn.isRemote) {
-				return ActionResultType.SUCCESS;
+	public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player,
+			InteractionHand handIn, BlockHitResult result) {
+		if (player.mayBuild()) {
+			if (worldIn.isClientSide) {
+				return InteractionResult.SUCCESS;
 			} else {
-				BlockState blockstate = state.func_235896_a_(INVERTED); // cycle
-				worldIn.setBlockState(pos, blockstate, 4);
-				updatePower(blockstate, worldIn, pos);
-				return ActionResultType.CONSUME;
+				BlockState blockstate = state.cycle(INVERTED);
+				worldIn.setBlock(pos, blockstate, 4);
+				updateSignalStrength(blockstate, worldIn, pos);
+				return InteractionResult.CONSUME;
 			}
 		} else {
-			return super.onBlockActivated(state, worldIn, pos, player, handIn, result);
+			return super.use(state, worldIn, pos, player, handIn, result);
 		}
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader worldIn) {
-		return new DaytimeSensorTileEntity();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return new DaytimeSensorTileEntity(pos, state);
+	}
+
+	@Override
+	@Nullable
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
+		return !world.isClientSide && world.dimensionType().hasSkyLight() ? createTickerHelper(type, ModTileEntities.DAYTIME_SENSOR, DaytimeSensorBlock::tickEntity) : null;
+	}
+
+	private static void tickEntity(Level world, BlockPos pos, BlockState state, DaytimeSensorTileEntity blockEntity) {
+		if (world.getGameTime() % 20L == 0L) {
+			updateSignalStrength(state, world, pos);
+		}
 	}
 }

@@ -3,32 +3,30 @@ package com.lupicus.rsx.tileentity;
 import com.lupicus.rsx.block.RedstoneEnergyBlock;
 import com.lupicus.rsx.config.MyConfig;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 
-public class RedstoneEnergyTileEntity extends TileEntity implements IEnergyStorage, ITickableTileEntity, ICapabilityProvider
+public class RedstoneEnergyTileEntity extends BlockEntity implements IEnergyStorage, ICapabilityProvider
 {
 	private int count = -1;
 	private int energy = -1;
 	private IEnergyStorage[] sides = new IEnergyStorage[6];
 	private LazyOptional<IEnergyStorage> energyOpt = LazyOptional.of(() -> this);
 
-	public RedstoneEnergyTileEntity() {
-		super(ModTileEntities.REDSTONE_ENERGY_BLOCK);
+	public RedstoneEnergyTileEntity(BlockPos pos, BlockState state) {
+		super(ModTileEntities.REDSTONE_ENERGY_BLOCK, pos, state);
 	}
 
-	@Override
-	public void tick()
+	public void serverTick()
 	{
-		if (!world.isRemote && count != 0)
+		if (count != 0)
 		{
 			if (count < 0)
 				updateSides();
@@ -127,15 +125,15 @@ public class RedstoneEnergyTileEntity extends TileEntity implements IEnergyStora
 	private void updateSides()
 	{
 		count = 0;
-		BlockPos pos = getPos();
+		BlockPos pos = worldPosition;
 		for (Direction dir : Direction.values())
 		{
 			IEnergyStorage storage = null;
-			BlockPos otherPos = pos.offset(dir);
-			BlockState other = world.getBlockState(otherPos);
-			if (other.hasTileEntity())
+			BlockPos otherPos = pos.relative(dir);
+			BlockState other = level.getBlockState(otherPos);
+			if (other.hasBlockEntity())
 			{
-				TileEntity te = world.getTileEntity(otherPos);
+				BlockEntity te = level.getBlockEntity(otherPos);
 				if (te == null)
 					;
 				else if (te instanceof IEnergyStorage)
@@ -147,7 +145,7 @@ public class RedstoneEnergyTileEntity extends TileEntity implements IEnergyStora
 					storage = te.getCapability(CapabilityEnergy.ENERGY, dir.getOpposite()).orElse(null);
 				}
 			}
-			sides[dir.getIndex()] = storage;
+			sides[dir.get3DDataValue()] = storage;
 			if (storage != null)
 				++count;
 		}
@@ -155,14 +153,14 @@ public class RedstoneEnergyTileEntity extends TileEntity implements IEnergyStora
 
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-		if (!removed && cap == CapabilityEnergy.ENERGY)
+		if (!remove && cap == CapabilityEnergy.ENERGY)
 			return energyOpt.cast();
 		return super.getCapability(cap, side);
 	}
 
 	@Override
-	public void remove() {
-		super.remove();
+	public void invalidateCaps() {
+		super.invalidateCaps();
 		energyOpt.invalidate();
 	}
 
@@ -188,7 +186,7 @@ public class RedstoneEnergyTileEntity extends TileEntity implements IEnergyStora
 		if (energy < 0)
 		{
 			BlockState blockstate = getBlockState();
-			energy = (int) (blockstate.get(RedstoneEnergyBlock.POWER) * MyConfig.energyFactor);
+			energy = (int) (blockstate.getValue(RedstoneEnergyBlock.POWER) * MyConfig.energyFactor);
 		}
 		return energy;
 	}

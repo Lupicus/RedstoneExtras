@@ -1,72 +1,89 @@
 package com.lupicus.rsx.block;
 
+import javax.annotation.Nullable;
+
+import com.lupicus.rsx.tileentity.ModTileEntities;
 import com.lupicus.rsx.tileentity.RedstoneEnergyTileEntity;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ContainerBlock;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.IntegerProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 
-public class RedstoneEnergyBlock extends ContainerBlock
+public class RedstoneEnergyBlock extends BaseEntityBlock
 {
-	public static final IntegerProperty POWER = BlockStateProperties.POWER_0_15;
+	public static final IntegerProperty POWER = BlockStateProperties.POWER;
 
 	public RedstoneEnergyBlock(Properties properties) {
 		super(properties);
-		this.setDefaultState(
-				this.stateContainer.getBaseState().with(POWER, Integer.valueOf(0)));
+		registerDefaultState(
+				stateDefinition.any().setValue(POWER, Integer.valueOf(0)));
 	}
 
-	public static boolean isNormalCube(BlockState state, IBlockReader worldIn, BlockPos pos) {
+	public static boolean isNormalCube(BlockState state, BlockGetter worldIn, BlockPos pos) {
 		return false;
 	}
 
 	@Override
-	public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
+	public void setPlacedBy(Level worldIn, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
 		updateState(worldIn, pos, state);
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
+	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
 			boolean isMoving) {
 		updateState(worldIn, pos, state);
-		TileEntity te = worldIn.getTileEntity(pos);
+		BlockEntity te = worldIn.getBlockEntity(pos);
 		if (te instanceof RedstoneEnergyTileEntity)
 			((RedstoneEnergyTileEntity) te).neighborChanged();
 	}
 
-	protected void updateState(World worldIn, BlockPos pos, BlockState state)
+	protected void updateState(Level worldIn, BlockPos pos, BlockState state)
 	{
-		int i = worldIn.getStrongPower(pos);
-		int j = state.get(POWER);
+		int i = worldIn.getDirectSignalTo(pos);
+		int j = state.getValue(POWER);
 		if (i != j)
 		{
-			state = state.with(POWER, Integer.valueOf(i));
-			worldIn.setBlockState(pos, state, 2);
+			state = state.setValue(POWER, Integer.valueOf(i));
+			worldIn.setBlock(pos, state, 2);
 		}
 	}
 
 	@Override
-	protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(POWER);
 	}
 
 	@Override
-	public BlockRenderType getRenderType(BlockState state) {
-		return BlockRenderType.MODEL;
+	public RenderShape getRenderShape(BlockState state) {
+		return RenderShape.MODEL;
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader worldIn) {
-		return new RedstoneEnergyTileEntity();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return new RedstoneEnergyTileEntity(pos, state);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	@Nullable
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
+		BlockEntityTicker<RedstoneEnergyTileEntity> func = RedstoneEnergyBlock::tickEntity;
+		return !world.isClientSide && type == ModTileEntities.REDSTONE_ENERGY_BLOCK ? (BlockEntityTicker<T>)func : null;
+	}
+
+	private static void tickEntity(Level world, BlockPos pos, BlockState state, RedstoneEnergyTileEntity blockEntity) {
+		blockEntity.serverTick();
 	}
 }

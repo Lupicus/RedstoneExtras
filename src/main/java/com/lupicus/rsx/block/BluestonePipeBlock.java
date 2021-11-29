@@ -4,46 +4,43 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import javax.annotation.Nullable;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.mojang.math.Vector3f;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.ObserverBlock;
-import net.minecraft.block.RedstoneWireBlock;
-import net.minecraft.block.RepeaterBlock;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.particles.RedstoneParticleData;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.IntegerProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.state.properties.RedstoneSide;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.AbstractGlassBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.RedStoneWireBlock;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.properties.RedstoneSide;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class BluestonePipeBlock extends Block
+public class BluestonePipeBlock extends AbstractGlassBlock
 {
 	public static final EnumProperty<RedstoneSide> UP = RedstonePipeBlock.REDSTONE_UP;
 	public static final EnumProperty<RedstoneSide> DOWN = RedstonePipeBlock.REDSTONE_DOWN;
-	public static final EnumProperty<RedstoneSide> NORTH = BlockStateProperties.REDSTONE_NORTH;
-	public static final EnumProperty<RedstoneSide> EAST = BlockStateProperties.REDSTONE_EAST;
-	public static final EnumProperty<RedstoneSide> SOUTH = BlockStateProperties.REDSTONE_SOUTH;
-	public static final EnumProperty<RedstoneSide> WEST = BlockStateProperties.REDSTONE_WEST;
-	public static final IntegerProperty POWER = BluestoneWireBlock.POWER; // == BlockStateProperties.POWER_0_15;
+	public static final EnumProperty<RedstoneSide> NORTH = BlockStateProperties.NORTH_REDSTONE;
+	public static final EnumProperty<RedstoneSide> EAST = BlockStateProperties.EAST_REDSTONE;
+	public static final EnumProperty<RedstoneSide> SOUTH = BlockStateProperties.SOUTH_REDSTONE;
+	public static final EnumProperty<RedstoneSide> WEST = BlockStateProperties.WEST_REDSTONE;
+	public static final IntegerProperty POWER = BluestoneWireBlock.POWER; // == BlockStateProperties.POWER;
 	public static final Map<Direction, EnumProperty<RedstoneSide>> FACING_PROPERTY_MAP = Maps.newEnumMap(ImmutableMap.<Direction, EnumProperty<RedstoneSide>>builder()
 			.put(Direction.NORTH, NORTH)
 			.put(Direction.EAST, EAST)
@@ -53,73 +50,78 @@ public class BluestonePipeBlock extends Block
 			.put(Direction.DOWN, DOWN)
 			.build());
 	private static final Vector3f[] COLORS = new Vector3f[16];
-	private RedstoneWireBlock wire = (RedstoneWireBlock) Blocks.REDSTONE_WIRE;
+	private RedStoneWireBlock wire = (RedStoneWireBlock) Blocks.REDSTONE_WIRE;
 
 	public BluestonePipeBlock(Properties properties)
 	{
 		super(properties);
-		setDefaultState(stateContainer.getBaseState().with(NORTH, RedstoneSide.NONE).with(EAST, RedstoneSide.NONE)
-				.with(SOUTH, RedstoneSide.NONE).with(WEST, RedstoneSide.NONE).with(UP, RedstoneSide.NONE)
-				.with(DOWN, RedstoneSide.NONE).with(POWER, Integer.valueOf(0)));
+		registerDefaultState(stateDefinition.any().setValue(NORTH, RedstoneSide.NONE).setValue(EAST, RedstoneSide.NONE)
+				.setValue(SOUTH, RedstoneSide.NONE).setValue(WEST, RedstoneSide.NONE).setValue(UP, RedstoneSide.NONE)
+				.setValue(DOWN, RedstoneSide.NONE).setValue(POWER, Integer.valueOf(0)));
 	}
 
-	public static boolean isNormalCube(BlockState state, IBlockReader worldIn, BlockPos pos) {
+	public static boolean isNormalCube(BlockState state, BlockGetter worldIn, BlockPos pos) {
 		return false;
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockItemUseContext context) {
-		IBlockReader iblockreader = context.getWorld();
-		BlockPos blockpos = context.getPos();
-		return getDefaultState().with(WEST, getSide(iblockreader, blockpos, Direction.WEST))
-				.with(EAST, getSide(iblockreader, blockpos, Direction.EAST))
-				.with(NORTH, getSide(iblockreader, blockpos, Direction.NORTH))
-				.with(SOUTH, getSide(iblockreader, blockpos, Direction.SOUTH))
-				.with(UP, getSide(iblockreader, blockpos, Direction.UP))
-				.with(DOWN, getSide(iblockreader, blockpos, Direction.DOWN));
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		BlockGetter iblockreader = context.getLevel();
+		BlockPos blockpos = context.getClickedPos();
+		return defaultBlockState().setValue(WEST, getSide(iblockreader, blockpos, Direction.WEST))
+				.setValue(EAST, getSide(iblockreader, blockpos, Direction.EAST))
+				.setValue(NORTH, getSide(iblockreader, blockpos, Direction.NORTH))
+				.setValue(SOUTH, getSide(iblockreader, blockpos, Direction.SOUTH))
+				.setValue(UP, getSide(iblockreader, blockpos, Direction.UP))
+				.setValue(DOWN, getSide(iblockreader, blockpos, Direction.DOWN));
 	}
 
 	@Override
-	public BlockState updatePostPlacement(BlockState stateIn, Direction facing, BlockState facingState, IWorld worldIn,
+	public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn,
 			BlockPos currentPos, BlockPos facingPos) {
-		return stateIn.with(FACING_PROPERTY_MAP.get(facing), getSide(worldIn, currentPos, facing));
+		return stateIn.setValue(FACING_PROPERTY_MAP.get(facing), getSide(worldIn, currentPos, facing));
 	}
 
-	private RedstoneSide getSide(IBlockReader worldIn, BlockPos pos, Direction face) {
-		BlockPos blockpos = pos.offset(face);
+	private RedstoneSide getSide(BlockGetter worldIn, BlockPos pos, Direction face) {
+		BlockPos blockpos = pos.relative(face);
 		BlockState blockstate = worldIn.getBlockState(blockpos);
-		return canConnectTo(blockstate, worldIn, blockpos, face) ? RedstoneSide.SIDE : RedstoneSide.NONE;
+		return shouldConnectTo(blockstate, worldIn, blockpos, face) ? RedstoneSide.SIDE : RedstoneSide.NONE;
 	}
 
-	private void updateSurroundingRedstone(World worldIn, BlockPos pos, BlockState state) {
-		int i = func_212568_b(worldIn, pos);
-		if (state.get(POWER) != i) {
+	@Override
+	public boolean canConnectRedstone(BlockState state, BlockGetter world, BlockPos pos, Direction direction) {
+		return false;
+	}
+
+	private void updatePowerStrength(Level worldIn, BlockPos pos, BlockState state) {
+		int i = calculateTargetStrength(worldIn, pos);
+		if (state.getValue(POWER) != i) {
 			if (worldIn.getBlockState(pos) == state) {
-				worldIn.setBlockState(pos, state.with(POWER, Integer.valueOf(i)), 2);
+				worldIn.setBlock(pos, state.setValue(POWER, Integer.valueOf(i)), 2);
 			}
 
 			Set<BlockPos> set = Sets.newHashSet();
 			set.add(pos);
 
 			for (Direction direction1 : Direction.values()) {
-				set.add(pos.offset(direction1));
+				set.add(pos.relative(direction1));
 			}
 
 			for (BlockPos blockpos : set) {
-				worldIn.notifyNeighborsOfStateChange(blockpos, this);
+				worldIn.updateNeighborsAt(blockpos, this);
 			}
 		}
 	}
 
-	private int func_212568_b(World world, BlockPos pos) {
-		wire.canProvidePower = false;
-		int i = world.getRedstonePowerFromNeighbors(pos);
-		wire.canProvidePower = true;
+	private int calculateTargetStrength(Level world, BlockPos pos) {
+		wire.shouldSignal = false;
+		int i = world.getBestNeighborSignal(pos);
+		wire.shouldSignal = true;
 		int j = 0;
 		if (i < 15) {
 			for (Direction direction : Direction.values()) {
-				BlockState blockstate1 = world.getBlockState(pos.offset(direction));
-				j = Math.max(j, getPower(blockstate1));
+				BlockState blockstate1 = world.getBlockState(pos.relative(direction));
+				j = Math.max(j, getWireSignal(blockstate1));
 			}
 		}
 
@@ -127,97 +129,92 @@ public class BluestonePipeBlock extends Block
 	}
 
 	/**
-	 * Calls World.notifyNeighborsOfStateChange() for all neighboring blocks, but
-	 * only if the given block is a bluestone wire.
+	 * Calls World.updateNeighborsAt() for all neighboring blocks, but
+	 * only if the given block is a bluestone wire/pipe.
 	 */
-	private void notifyWireNeighborsOfStateChange(World worldIn, BlockPos pos) {
+	private void updateNeighborsOfNeighboringWires(Level worldIn, BlockPos pos) {
 		BlockState state = worldIn.getBlockState(pos);
-		if (state.isIn(this) || state.isIn(ModBlocks.BLUESTONE_WIRE)) {
-			worldIn.notifyNeighborsOfStateChange(pos, this);
+		if (state.is(this) || state.is(ModBlocks.BLUESTONE_WIRE)) {
+			worldIn.updateNeighborsAt(pos, this);
 
 			for (Direction direction : Direction.values()) {
-				worldIn.notifyNeighborsOfStateChange(pos.offset(direction), this);
+				worldIn.updateNeighborsAt(pos.relative(direction), this);
 			}
 		}
 	}
 
 	@Override
-	public void onBlockAdded(BlockState state, World worldIn, BlockPos pos, BlockState oldState, boolean isMoving) {
-		if (!oldState.isIn(state.getBlock()) && !worldIn.isRemote) {
-			updateSurroundingRedstone(worldIn, pos, state);
+	public void onPlace(BlockState state, Level worldIn, BlockPos pos, BlockState oldState, boolean isMoving) {
+		if (!oldState.is(state.getBlock()) && !worldIn.isClientSide) {
+			updatePowerStrength(worldIn, pos, state);
 
 			for (Direction direction : Direction.values()) {
-				notifyWireNeighborsOfStateChange(worldIn, pos.offset(direction));
+				updateNeighborsOfNeighboringWires(worldIn, pos.relative(direction));
 			}
 		}
 	}
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (!isMoving && !state.isIn(newState.getBlock())) {
-			super.onReplaced(state, worldIn, pos, newState, isMoving);
-			if (!worldIn.isRemote) {
+	public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
+		if (!isMoving && !state.is(newState.getBlock())) {
+			super.onRemove(state, worldIn, pos, newState, isMoving);
+			if (!worldIn.isClientSide) {
 				for (Direction direction : Direction.values()) {
-					worldIn.notifyNeighborsOfStateChange(pos.offset(direction), this);
+					worldIn.updateNeighborsAt(pos.relative(direction), this);
 				}
 
-				updateSurroundingRedstone(worldIn, pos, state);
+				updatePowerStrength(worldIn, pos, state);
 
 				for (Direction direction : Direction.values()) {
-					notifyWireNeighborsOfStateChange(worldIn, pos.offset(direction));
+					updateNeighborsOfNeighboringWires(worldIn, pos.relative(direction));
 				}
 			}
 		}
 	}
 
-	private int getPower(BlockState neighbor) {
-		return neighbor.isIn(this) || neighbor.isIn(ModBlocks.BLUESTONE_WIRE) ? neighbor.get(POWER) : 0;
+	private int getWireSignal(BlockState neighbor) {
+		return neighbor.is(this) || neighbor.is(ModBlocks.BLUESTONE_WIRE) ? neighbor.getValue(POWER) : 0;
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
+	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
 			boolean isMoving) {
-		if (!worldIn.isRemote) {
-			updateSurroundingRedstone(worldIn, pos, state);
+		if (!worldIn.isClientSide) {
+			updatePowerStrength(worldIn, pos, state);
 		}
 	}
 
 	@Override
-	public int getStrongPower(BlockState blockState, IBlockReader blockAccess, BlockPos pos, Direction side) {
-		return wire.canProvidePower ? blockState.getWeakPower(blockAccess, pos, side) : 0;
+	public int getDirectSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+		return wire.shouldSignal ? blockState.getSignal(blockAccess, pos, side) : 0;
 	}
 
 	@Override
-	public int getWeakPower(BlockState blockState, IBlockReader blockAccess, BlockPos pos, Direction side) {
-		return wire.canProvidePower ? blockState.get(POWER) : 0;
+	public int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+		return wire.shouldSignal ? blockState.getValue(POWER) : 0;
 	}
 
-	protected static boolean canConnectTo(BlockState blockState, IBlockReader world, BlockPos pos,
-			@Nullable Direction side) {
-		if (blockState.isIn(ModBlocks.BLUESTONE_WIRE) || blockState.isIn(ModBlocks.BLUESTONE_PIPE_BLOCK)) {
+	protected static boolean shouldConnectTo(BlockState blockState, BlockGetter world, BlockPos pos,
+			Direction side) {
+		if (blockState.is(ModBlocks.BLUESTONE_WIRE) || blockState.is(ModBlocks.BLUESTONE_PIPE_BLOCK)) {
 			return true;
-		} else if (blockState.isIn(Blocks.REDSTONE_WIRE) || blockState.isIn(ModBlocks.REDSTONE_PIPE_BLOCK)) {
+		} else if (blockState.is(Blocks.REDSTONE_WIRE) || blockState.is(ModBlocks.REDSTONE_PIPE_BLOCK)) {
 			return false;
-		} else if (blockState.isIn(Blocks.REPEATER)) {
-			Direction direction = blockState.get(RepeaterBlock.HORIZONTAL_FACING);
-			return direction == side || direction.getOpposite() == side;
-		} else if (blockState.isIn(Blocks.OBSERVER)) {
-			return side == blockState.get(ObserverBlock.FACING);
 		} else {
-			return blockState.canConnectRedstone(world, pos, side) && side != null;
+			return blockState.canRedstoneConnectTo(world, pos, side);
 		}
 	}
 
 	@Override
-	public boolean canProvidePower(BlockState state) {
-		return wire.canProvidePower;
+	public boolean isSignalSource(BlockState state) {
+		return wire.shouldSignal;
 	}
 
 	@OnlyIn(Dist.CLIENT)
 	public static int colorMultiplier(int power) {
 		Vector3f vector3f = COLORS[power];
-		return MathHelper.rgb(vector3f.getX(), vector3f.getY(), vector3f.getZ());
+		return Mth.color(vector3f.x(), vector3f.y(), vector3f.z());
 	}
 
 	/**
@@ -228,14 +225,14 @@ public class BluestonePipeBlock extends Block
 	 */
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void animateTick(BlockState stateIn, World worldIn, BlockPos pos, Random rand) {
-		int i = stateIn.get(POWER);
+	public void animateTick(BlockState stateIn, Level worldIn, BlockPos pos, Random rand) {
+		int i = stateIn.getValue(POWER);
 		if (i != 0) {
 			double d0 = (double) pos.getX() + 0.5D + ((double) rand.nextFloat() - 0.5D) * 0.8D;
 			double d1 = (double) pos.getY() + 0.5D + ((double) rand.nextFloat() - 0.5D) * 0.8D;
 			double d2 = (double) pos.getZ() + 0.5D + ((double) rand.nextFloat() - 0.5D) * 0.8D;
 			Vector3f vec = COLORS[i];
-			worldIn.addParticle(new RedstoneParticleData(vec.getX(), vec.getY(), vec.getZ(), 1.0F), d0, d1, d2, 0.0D, 0.0D, 0.0D);
+			worldIn.addParticle(new DustParticleOptions(vec, 1.0F), d0, d1, d2, 0.0D, 0.0D, 0.0D);
 		}
 	}
 
@@ -243,14 +240,14 @@ public class BluestonePipeBlock extends Block
 	public BlockState rotate(BlockState state, Rotation rot) {
 		switch (rot) {
 		case CLOCKWISE_180:
-			return state.with(NORTH, state.get(SOUTH)).with(EAST, state.get(WEST)).with(SOUTH, state.get(NORTH))
-					.with(WEST, state.get(EAST));
+			return state.setValue(NORTH, state.getValue(SOUTH)).setValue(EAST, state.getValue(WEST)).setValue(SOUTH, state.getValue(NORTH))
+					.setValue(WEST, state.getValue(EAST));
 		case COUNTERCLOCKWISE_90:
-			return state.with(NORTH, state.get(EAST)).with(EAST, state.get(SOUTH)).with(SOUTH, state.get(WEST))
-					.with(WEST, state.get(NORTH));
+			return state.setValue(NORTH, state.getValue(EAST)).setValue(EAST, state.getValue(SOUTH)).setValue(SOUTH, state.getValue(WEST))
+					.setValue(WEST, state.getValue(NORTH));
 		case CLOCKWISE_90:
-			return state.with(NORTH, state.get(WEST)).with(EAST, state.get(NORTH)).with(SOUTH, state.get(EAST))
-					.with(WEST, state.get(SOUTH));
+			return state.setValue(NORTH, state.getValue(WEST)).setValue(EAST, state.getValue(NORTH)).setValue(SOUTH, state.getValue(EAST))
+					.setValue(WEST, state.getValue(SOUTH));
 		default:
 			return state;
 		}
@@ -261,16 +258,16 @@ public class BluestonePipeBlock extends Block
 	public BlockState mirror(BlockState state, Mirror mirrorIn) {
 		switch (mirrorIn) {
 		case LEFT_RIGHT:
-			return state.with(NORTH, state.get(SOUTH)).with(SOUTH, state.get(NORTH));
+			return state.setValue(NORTH, state.getValue(SOUTH)).setValue(SOUTH, state.getValue(NORTH));
 		case FRONT_BACK:
-			return state.with(EAST, state.get(WEST)).with(WEST, state.get(EAST));
+			return state.setValue(EAST, state.getValue(WEST)).setValue(WEST, state.getValue(EAST));
 		default:
 			return super.mirror(state, mirrorIn);
 		}
 	}
 
 	@Override
-	protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN, POWER);
 	}
 
@@ -278,8 +275,8 @@ public class BluestonePipeBlock extends Block
 		for (int i = 0; i <= 15; ++i) {
 			float f = (float) i / 15.0F;
 			float f3 = f * 0.6F + (f > 0.0F ? 0.4F : 0.3F);
-			float f2 = MathHelper.clamp(f * f * 0.7F - 0.5F, 0.0F, 1.0F);
-			float f1 = MathHelper.clamp(f * f * 0.6F - 0.7F, 0.0F, 1.0F);
+			float f2 = Mth.clamp(f * f * 0.7F - 0.5F, 0.0F, 1.0F);
+			float f1 = Mth.clamp(f * f * 0.6F - 0.7F, 0.0F, 1.0F);
 			COLORS[i] = new Vector3f(f1, f2, f3);
 		}
 	}

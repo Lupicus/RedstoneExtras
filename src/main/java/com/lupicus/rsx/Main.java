@@ -6,10 +6,10 @@ import com.lupicus.rsx.item.ModItems;
 import com.lupicus.rsx.sound.ModSounds;
 import com.lupicus.rsx.tileentity.ModTileEntities;
 
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ColorHandlerEvent;
@@ -75,7 +75,7 @@ public class Main
         }
 
 	    @SubscribeEvent
-	    public static void onTileEntitiesRegistry(final RegistryEvent.Register<TileEntityType<?>> event)
+	    public static void onTileEntitiesRegistry(final RegistryEvent.Register<BlockEntityType<?>> event)
 	    {
 	        ModTileEntities.register(event.getRegistry());
 	    }
