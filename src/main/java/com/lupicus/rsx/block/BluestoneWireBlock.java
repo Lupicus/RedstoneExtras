@@ -539,6 +539,7 @@ public class BluestoneWireBlock extends Block
 		builder.add(NORTH, EAST, SOUTH, WEST, POWER);
 	}
 
+	@Override
 	public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player,
 			Hand handIn, BlockRayTraceResult hit) {
 		if (!player.abilities.allowEdit) {

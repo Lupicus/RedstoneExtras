@@ -14,14 +14,14 @@ import net.minecraftforge.registries.IForgeRegistry;
 public class ModBlocks
 {
 	public static final Block DAYTIME_SENSOR = new DaytimeSensorBlock(Properties.create(Material.WOOD).hardnessAndResistance(0.2F).sound(SoundType.WOOD)).setRegistryName("daytime_sensor");
-	public static final Block REDSTONE_POWER_BLOCK = new RedstonePowerBlock(Properties.create(Material.IRON).hardnessAndResistance(5.0F, 6.0F).sound(SoundType.METAL)).setRegistryName("redstone_power_block");
+	public static final Block REDSTONE_POWER_BLOCK = new RedstonePowerBlock(Properties.create(Material.IRON).hardnessAndResistance(5.0F, 6.0F).sound(SoundType.METAL).func_235828_a_(RedstonePowerBlock::isNormalCube)).setRegistryName("redstone_power_block");
 	public static final Block REDSTONE_PIPE_BLOCK = new RedstonePipeBlock(Properties.create(Material.GLASS).notSolid().hardnessAndResistance(0.25F).sound(SoundType.GLASS).func_235828_a_(RedstonePipeBlock::isNormalCube)).setRegistryName("redstone_pipe_block");
 	public static final Block REDSTONE_PULSE_BLOCK = new RedstonePulseBlock(Properties.create(Material.MISCELLANEOUS).hardnessAndResistance(0.0F).sound(SoundType.WOOD)).setRegistryName("redstone_pulse_block");
 	public static final Block REDSTONE_RESISTOR_BLOCK = new RedstoneResistorBlock(Properties.create(Material.MISCELLANEOUS).hardnessAndResistance(0.0F).sound(SoundType.WOOD)).setRegistryName("redstone_resistor_block");
 	public static final Block REDSTONE_BENDER_BLOCK = new RedstoneBenderBlock(Properties.create(Material.MISCELLANEOUS).hardnessAndResistance(0.0F).sound(SoundType.WOOD)).setRegistryName("redstone_bender_block");
 	public static final Block REDSTONE_TEE_BLOCK = new RedstoneTeeBlock(Properties.create(Material.MISCELLANEOUS).hardnessAndResistance(0.0F).sound(SoundType.WOOD)).setRegistryName("redstone_tee_block");
 	public static final Block REDSTONE_STRAIGHT_BLOCK = new RedstoneStraightBlock(Properties.create(Material.MISCELLANEOUS).hardnessAndResistance(0.0F).sound(SoundType.WOOD)).setRegistryName("redstone_straight_block");
-	public static final Block REDSTONE_ENERGY_BLOCK = new RedstoneEnergyBlock(Properties.create(Material.ROCK).hardnessAndResistance(3.5F)).setRegistryName("redstone_energy_block");
+	public static final Block REDSTONE_ENERGY_BLOCK = new RedstoneEnergyBlock(Properties.create(Material.ROCK).hardnessAndResistance(3.5F).func_235828_a_(RedstoneEnergyBlock::isNormalCube)).setRegistryName("redstone_energy_block");
 	public static final Block BLUESTONE_WIRE = new BluestoneWireBlock(Properties.create(Material.MISCELLANEOUS).doesNotBlockMovement().hardnessAndResistance(0.0F)).setRegistryName("bluestone_wire");
 	public static final Block BLUESTONE_PIPE_BLOCK = new BluestonePipeBlock(Properties.create(Material.GLASS).notSolid().hardnessAndResistance(0.25F).sound(SoundType.GLASS).func_235828_a_(BluestonePipeBlock::isNormalCube)).setRegistryName("bluestone_pipe_block");
 

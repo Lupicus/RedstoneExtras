@@ -26,6 +26,10 @@ public class RedstoneEnergyBlock extends ContainerBlock
 				this.stateContainer.getBaseState().with(POWER, Integer.valueOf(0)));
 	}
 
+	public static boolean isNormalCube(BlockState state, IBlockReader worldIn, BlockPos pos) {
+		return false;
+	}
+
 	@Override
 	public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
 		updateState(worldIn, pos, state);

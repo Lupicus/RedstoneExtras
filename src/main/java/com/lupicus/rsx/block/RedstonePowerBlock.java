@@ -28,6 +28,10 @@ public class RedstonePowerBlock extends Block
 				.with(POWER, Integer.valueOf(15)));
 	}
 
+	public static boolean isNormalCube(BlockState state, IBlockReader worldIn, BlockPos pos) {
+		return false;
+	}
+
 	@Override
 	public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player,
 			Hand handIn, BlockRayTraceResult result) {

@@ -1,6 +1,4 @@
-/runClient.launch
-/runData.launch
-/runServer.launch
+/*.launch
 /.settings/
 /bin/
 /build/
@@ -9,3 +7,4 @@
 /.classpath
 /run/
 /old_stuff/
+/libs/

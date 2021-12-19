@@ -19,6 +19,7 @@ public class RedstoneEnergyTileEntity extends TileEntity implements IEnergyStora
 	private int count = -1;
 	private int energy = -1;
 	private IEnergyStorage[] sides = new IEnergyStorage[6];
+	private LazyOptional<IEnergyStorage> energyOpt = LazyOptional.of(() -> this);
 
 	public RedstoneEnergyTileEntity() {
 		super(ModTileEntities.REDSTONE_ENERGY_BLOCK);
@@ -135,17 +136,15 @@ public class RedstoneEnergyTileEntity extends TileEntity implements IEnergyStora
 			if (other.hasTileEntity())
 			{
 				TileEntity te = world.getTileEntity(otherPos);
-				if (te instanceof IEnergyStorage)
+				if (te == null)
+					;
+				else if (te instanceof IEnergyStorage)
 				{
 					storage = (IEnergyStorage) te;
 				}
 				else
 				{
-					LazyOptional<IEnergyStorage> opt = te.getCapability(CapabilityEnergy.ENERGY, dir.getOpposite());
-					if (opt.isPresent())
-					{
-						storage = opt.orElse(null);
-					}
+					storage = te.getCapability(CapabilityEnergy.ENERGY, dir.getOpposite()).orElse(null);
 				}
 			}
 			sides[dir.getIndex()] = storage;
@@ -154,12 +153,17 @@ public class RedstoneEnergyTileEntity extends TileEntity implements IEnergyStora
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-		if (cap == CapabilityEnergy.ENERGY)
-			return LazyOptional.of(() -> (T) this);
+		if (!removed && cap == CapabilityEnergy.ENERGY)
+			return energyOpt.cast();
 		return super.getCapability(cap, side);
+	}
+
+	@Override
+	public void remove() {
+		super.remove();
+		energyOpt.invalidate();
 	}
 
 	@Override
