@@ -82,7 +82,7 @@ public class RedstonePulseBlock extends DiodeBlock
 				if (state.getValue(INVERTED)) flag2 = !flag2;
 				if (flag2)
 				{
-					world.getBlockTicks().scheduleTick(pos, this, 1);
+					world.scheduleTick(pos, this, 1);
 					state = state.setValue(POWERED, flag1).setValue(PULSE, true);
 					world.setBlock(pos, state, 3);
 				}
