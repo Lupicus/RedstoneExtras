@@ -1,5 +1,6 @@
 {   "parent": "block/thin_block",
     "ambientocclusion": false,
+    "render_type": "cutout",
     "textures": {
         "particle": "rsx:block/redstone_pulse_block",
         "slab": "block/smooth_stone",

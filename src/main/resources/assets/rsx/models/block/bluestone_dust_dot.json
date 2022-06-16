@@ -1,5 +1,6 @@
 {
     "ambientocclusion": false,
+    "render_type": "cutout",
     "textures": {
         "particle": "rsx:block/bluestone_dust_dot",
         "line": "rsx:block/bluestone_dust_dot",

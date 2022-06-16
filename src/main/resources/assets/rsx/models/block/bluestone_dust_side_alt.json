@@ -1,5 +1,6 @@
 {
     "ambientocclusion": false,
+    "render_type": "cutout",
     "textures": {
         "particle": "rsx:block/bluestone_dust_dot",
         "overlay": "rsx:block/bluestone_dust_overlay"

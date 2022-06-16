@@ -1,13 +1,12 @@
 package com.lupicus.rsx.block;
 
-import java.util.Random;
-
 import com.lupicus.rsx.sound.ModSounds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -106,7 +105,7 @@ public class RedstonePulseBlock extends DiodeBlock
 	}
 
 	@Override
-	public void tick(BlockState state, ServerLevel world, BlockPos pos, Random rand) {
+	public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
 		world.setBlock(pos, state.setValue(PULSE, false), 3);
 	}
 

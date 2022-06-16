@@ -1,7 +1,6 @@
 package com.lupicus.rsx.block;
 
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -13,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -225,7 +225,7 @@ public class BluestonePipeBlock extends AbstractGlassBlock
 	 */
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void animateTick(BlockState stateIn, Level worldIn, BlockPos pos, Random rand) {
+	public void animateTick(BlockState stateIn, Level worldIn, BlockPos pos, RandomSource rand) {
 		int i = stateIn.getValue(POWER);
 		if (i != 0) {
 			double d0 = (double) pos.getX() + 0.5D + ((double) rand.nextFloat() - 0.5D) * 0.8D;

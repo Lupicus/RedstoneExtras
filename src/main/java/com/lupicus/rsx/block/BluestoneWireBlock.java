@@ -1,7 +1,6 @@
 package com.lupicus.rsx.block;
 
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import javax.annotation.Nullable;
@@ -15,6 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -454,7 +454,7 @@ public class BluestoneWireBlock extends Block
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	private void spawnParticlesAlongLine(Level world, Random rand, BlockPos pos, Vector3f vec,
+	private void spawnParticlesAlongLine(Level world, RandomSource rand, BlockPos pos, Vector3f vec,
 			Direction dir1, Direction dir2, float fv1, float fv2) {
 		float f = fv2 - fv1;
 		if (!(rand.nextFloat() >= 0.2F * f)) {
@@ -481,7 +481,7 @@ public class BluestoneWireBlock extends Block
 	 */
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void animateTick(BlockState stateIn, Level worldIn, BlockPos pos, Random rand) {
+	public void animateTick(BlockState stateIn, Level worldIn, BlockPos pos, RandomSource rand) {
 		int i = stateIn.getValue(POWER);
 		if (i != 0) {
 			for (Direction direction : Direction.Plane.HORIZONTAL) {

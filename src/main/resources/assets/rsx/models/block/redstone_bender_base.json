@@ -1,5 +1,6 @@
 {   "parent": "block/thin_block",
     "ambientocclusion": false,
+    "render_type": "cutout",
     "elements": [
         {   "from": [ 0, 0, 0 ],
             "to": [ 16, 2, 16 ],
