@@ -7,9 +7,7 @@ import com.lupicus.rsx.sound.ModSounds;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.RedstoneDiodeBlock;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer.Builder;
@@ -64,12 +62,6 @@ public class RedstonePulseBlock extends RedstoneDiodeBlock
 	}
 
 	@Override
-	public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack)
-	{
-		updateState(worldIn, pos, state);
-	}
-
-	@Override
 	protected void updateState(World world, BlockPos pos, BlockState state)
 	{
 		if (!world.isRemote)
@@ -82,9 +74,9 @@ public class RedstonePulseBlock extends RedstoneDiodeBlock
 				if (state.get(INVERTED)) flag2 = !flag2;
 				if (flag2)
 				{
-					world.getPendingBlockTicks().scheduleTick(pos, this, 1);
 					state = state.with(POWERED, flag1).with(PULSE, true);
 					world.setBlockState(pos, state, 3);
+					world.addBlockEvent(pos, this, 0, 0);
 				}
 				else
 				{
@@ -106,8 +98,14 @@ public class RedstonePulseBlock extends RedstoneDiodeBlock
 	}
 
 	@Override
-	public void tick(BlockState state, ServerWorld world, BlockPos pos, Random rand) {
+	public boolean eventReceived(BlockState state, World world, BlockPos pos, int id, int param) {
 		world.setBlockState(pos, state.with(PULSE, false), 3);
+		return false;
+	}
+
+	@Override
+	public void tick(BlockState state, ServerWorld world, BlockPos pos, Random rand) {
+		updateState(world, pos, state);
 	}
 
 	@Override
