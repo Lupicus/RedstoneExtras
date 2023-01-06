@@ -10,9 +10,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -63,12 +61,6 @@ public class RedstonePulseBlock extends DiodeBlock
 	}
 
 	@Override
-	public void setPlacedBy(Level worldIn, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack)
-	{
-		checkTickOnNeighbor(worldIn, pos, state);
-	}
-
-	@Override
 	protected void checkTickOnNeighbor(Level world, BlockPos pos, BlockState state)
 	{
 		if (!world.isClientSide)
@@ -81,9 +73,9 @@ public class RedstonePulseBlock extends DiodeBlock
 				if (state.getValue(INVERTED)) flag2 = !flag2;
 				if (flag2)
 				{
-					world.scheduleTick(pos, this, 1);
 					state = state.setValue(POWERED, flag1).setValue(PULSE, true);
 					world.setBlock(pos, state, 3);
+					world.neighborChanged(pos, this, pos); // do special case below
 				}
 				else
 				{
@@ -105,8 +97,23 @@ public class RedstonePulseBlock extends DiodeBlock
 	}
 
 	@Override
-	public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
+	public boolean triggerEvent(BlockState state, Level world, BlockPos pos, int id, int param) {
 		world.setBlock(pos, state.setValue(PULSE, false), 3);
+		return false;
+	}
+
+	@Override
+	public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
+		checkTickOnNeighbor(world, pos, state);
+	}
+
+	@Override
+	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving) {
+		if (!world.isClientSide && pos.equals(fromPos)) {
+			world.blockEvent(pos, this, 0, 0);
+		}
+		else
+			super.neighborChanged(state, world, pos, blockIn, fromPos, isMoving);
 	}
 
 	@Override
