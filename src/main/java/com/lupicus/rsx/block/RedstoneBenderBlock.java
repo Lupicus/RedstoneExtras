@@ -3,7 +3,7 @@ package com.lupicus.rsx.block;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.mojang.math.Vector3f;
+import org.joml.Vector3f;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

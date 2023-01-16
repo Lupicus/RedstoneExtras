@@ -5,10 +5,11 @@ import java.util.Set;
 
 import javax.annotation.Nullable;
 
+import org.joml.Vector3f;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.mojang.math.Vector3f;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

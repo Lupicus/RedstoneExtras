@@ -8,9 +8,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 
 public class RedstoneEnergyTileEntity extends BlockEntity implements IEnergyStorage, ICapabilityProvider
@@ -142,7 +142,7 @@ public class RedstoneEnergyTileEntity extends BlockEntity implements IEnergyStor
 				}
 				else
 				{
-					storage = te.getCapability(CapabilityEnergy.ENERGY, dir.getOpposite()).orElse(null);
+					storage = te.getCapability(ForgeCapabilities.ENERGY, dir.getOpposite()).orElse(null);
 				}
 			}
 			sides[dir.get3DDataValue()] = storage;
@@ -153,7 +153,7 @@ public class RedstoneEnergyTileEntity extends BlockEntity implements IEnergyStor
 
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-		if (!remove && cap == CapabilityEnergy.ENERGY)
+		if (!remove && cap == ForgeCapabilities.ENERGY)
 			return energyOpt.cast();
 		return super.getCapability(cap, side);
 	}
