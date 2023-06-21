@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
-import net.minecraftforge.event.CreativeModeTabEvent;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -59,7 +59,7 @@ public class Main
 	    }
 
 	    @SubscribeEvent
-	    public static void onCreativeTab(CreativeModeTabEvent.BuildContents event)
+	    public static void onCreativeTab(BuildCreativeModeTabContentsEvent event)
 	    {
 	    	ModItems.setupTabs(event);
 	    }

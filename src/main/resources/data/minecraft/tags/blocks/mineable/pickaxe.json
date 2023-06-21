@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "rsx:redstone_power_block",
+    "rsx:redstone_energy_block"
+  ]
+}

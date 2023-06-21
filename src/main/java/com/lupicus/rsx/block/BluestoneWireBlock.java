@@ -29,6 +29,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RedStoneWireBlock;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -236,7 +237,7 @@ public class BluestoneWireBlock extends Block
 		BlockPos blockpos = pos.relative(face);
 		BlockState blockstate = worldIn.getBlockState(blockpos);
 		if (checkUp) {
-			boolean flag = canSurviveOn(worldIn, blockpos, blockstate);
+			boolean flag = blockstate.getBlock() instanceof TrapDoorBlock || canSurviveOn(worldIn, blockpos, blockstate);
 			if (flag && shouldConnectTo(worldIn.getBlockState(blockpos.above()), worldIn, blockpos.above(), (Direction) null)) {
 				if (blockstate.isFaceSturdy(worldIn, blockpos, face.getOpposite())) {
 					return RedstoneSide.UP;

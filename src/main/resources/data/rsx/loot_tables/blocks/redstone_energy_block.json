@@ -15,5 +15,6 @@
         }
       ]
     }
-  ]
+  ],
+  "random_sequence": "rsx:blocks/redstone_energy_block"
 }

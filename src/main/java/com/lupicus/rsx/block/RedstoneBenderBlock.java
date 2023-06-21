@@ -67,11 +67,12 @@ public class RedstoneBenderBlock extends HorizontalDirectionalBlock
 				getSides(state, set);
 			Rotation rot = (player.isSecondaryUseActive()) ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90;
 			state = rotate(state, rot);
-			world.setBlock(pos, state, 0);
+			world.setBlock(pos, state, 3);
 			int j = calculateInputStrength(world, pos, state);
 			state = state.setValue(POWER, Integer.valueOf(j));
 			world.setBlock(pos, state, 2);
-			getSides(state, set);
+			if (j > 1)
+				getSides(state, set);
 			notifyNeighbors(world, pos, state, set);
 			return InteractionResult.SUCCESS;
 		}
@@ -188,7 +189,7 @@ public class RedstoneBenderBlock extends HorizontalDirectionalBlock
 	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
 			boolean isMoving) {
 		if (state.canSurvive(worldIn, pos)) {
-			Direction from = Direction.fromNormal(pos.getX() - fromPos.getX(), pos.getY() - fromPos.getY(),
+			Direction from = Direction.fromDelta(pos.getX() - fromPos.getX(), pos.getY() - fromPos.getY(),
 					pos.getZ() - fromPos.getZ());
 			if (canConnectRedstone(state, worldIn, pos, from))
 			{

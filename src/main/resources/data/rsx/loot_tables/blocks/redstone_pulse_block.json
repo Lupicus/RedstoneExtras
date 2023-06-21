@@ -15,5 +15,6 @@
         }
       ]
     }
-  ]
+  ],
+  "random_sequence": "rsx:blocks/redstone_pulse_block"
 }

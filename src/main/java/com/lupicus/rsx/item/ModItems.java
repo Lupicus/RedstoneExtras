@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
-import net.minecraftforge.event.CreativeModeTabEvent;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 
 public class ModItems
@@ -47,9 +47,9 @@ public class ModItems
 		forgeRegistry.register("bluestone_pipe_block", BLUESTONE_PIPE_BLOCK);
 	}
 
-	public static void setupTabs(CreativeModeTabEvent.BuildContents event)
+	public static void setupTabs(BuildCreativeModeTabContentsEvent event)
 	{
-		if (event.getTab() == CreativeModeTabs.REDSTONE_BLOCKS)
+		if (event.getTabKey() == CreativeModeTabs.REDSTONE_BLOCKS)
 		{
 			event.accept(BLUESTONE);
 			event.accept(REDSTONE_PIPE_BLOCK);
