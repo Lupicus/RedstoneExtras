@@ -21,11 +21,11 @@ public class ModBlocks
 	public static final Block DAYTIME_SENSOR = new DaytimeSensorBlock(Properties.of().mapColor(MapColor.WOOD).strength(0.2F).sound(SoundType.WOOD).ignitedByLava());
 	public static final Block REDSTONE_POWER_BLOCK = new RedstonePowerBlock(Properties.of().mapColor(MapColor.FIRE).requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.METAL).isRedstoneConductor(RedstonePowerBlock::isNormalCube));
 	public static final Block REDSTONE_PIPE_BLOCK = new RedstonePipeBlock(Properties.of().mapColor(DyeColor.RED).noOcclusion().strength(0.3F).sound(SoundType.GLASS).isRedstoneConductor(RedstonePipeBlock::isNormalCube).isValidSpawn(ModBlocks::never).isSuffocating(ModBlocks::never).isViewBlocking(ModBlocks::never));
-	public static final Block REDSTONE_PULSE_BLOCK = new RedstonePulseBlock(Properties.of().instabreak().sound(SoundType.WOOD).pushReaction(PushReaction.DESTROY));
-	public static final Block REDSTONE_RESISTOR_BLOCK = new RedstoneResistorBlock(Properties.of().instabreak().sound(SoundType.WOOD).pushReaction(PushReaction.DESTROY));
-	public static final Block REDSTONE_BENDER_BLOCK = new RedstoneBenderBlock(Properties.of().instabreak().sound(SoundType.WOOD).pushReaction(PushReaction.DESTROY));
-	public static final Block REDSTONE_TEE_BLOCK = new RedstoneTeeBlock(Properties.of().instabreak().sound(SoundType.WOOD).pushReaction(PushReaction.DESTROY));
-	public static final Block REDSTONE_STRAIGHT_BLOCK = new RedstoneStraightBlock(Properties.of().instabreak().sound(SoundType.WOOD).pushReaction(PushReaction.DESTROY));
+	public static final Block REDSTONE_PULSE_BLOCK = new RedstonePulseBlock(Properties.of().instabreak().sound(SoundType.STONE).pushReaction(PushReaction.DESTROY));
+	public static final Block REDSTONE_RESISTOR_BLOCK = new RedstoneResistorBlock(Properties.of().instabreak().sound(SoundType.STONE).pushReaction(PushReaction.DESTROY));
+	public static final Block REDSTONE_BENDER_BLOCK = new RedstoneBenderBlock(Properties.of().instabreak().sound(SoundType.STONE).pushReaction(PushReaction.DESTROY));
+	public static final Block REDSTONE_TEE_BLOCK = new RedstoneTeeBlock(Properties.of().instabreak().sound(SoundType.STONE).pushReaction(PushReaction.DESTROY));
+	public static final Block REDSTONE_STRAIGHT_BLOCK = new RedstoneStraightBlock(Properties.of().instabreak().sound(SoundType.STONE).pushReaction(PushReaction.DESTROY));
 	public static final Block REDSTONE_ENERGY_BLOCK = new RedstoneEnergyBlock(Properties.of().mapColor(MapColor.STONE).requiresCorrectToolForDrops().strength(3.5F).isRedstoneConductor(RedstoneEnergyBlock::isNormalCube));
 	public static final Block BLUESTONE_WIRE = new BluestoneWireBlock(Properties.of().noCollission().instabreak().pushReaction(PushReaction.DESTROY));
 	public static final Block BLUESTONE_PIPE_BLOCK = new BluestonePipeBlock(Properties.of().mapColor(DyeColor.BLUE).noOcclusion().strength(0.3F).sound(SoundType.GLASS).isRedstoneConductor(BluestonePipeBlock::isNormalCube).isValidSpawn(ModBlocks::never).isSuffocating(ModBlocks::never).isViewBlocking(ModBlocks::never));

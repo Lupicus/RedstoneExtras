@@ -16,12 +16,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.RedStoneWireBlock;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.SupportType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -53,7 +55,12 @@ public class RedstoneBenderBlock extends HorizontalDirectionalBlock
 
 	@Override
 	public boolean canSurvive(BlockState state, LevelReader worldIn, BlockPos pos) {
-		return canSupportRigidBlock(worldIn, pos.below());
+		BlockPos blockpos = pos.below();
+		return this.canSurviveOn(worldIn, blockpos, worldIn.getBlockState(blockpos));
+	}
+
+	protected boolean canSurviveOn(LevelReader world, BlockPos pos, BlockState state) {
+		return state.isFaceSturdy(world, pos, Direction.UP, SupportType.RIGID);
 	}
 
 	@Override
@@ -81,6 +88,15 @@ public class RedstoneBenderBlock extends HorizontalDirectionalBlock
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
 		return defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+	}
+
+	@Override
+	@SuppressWarnings("deprecation")
+	public BlockState updateShape(BlockState state, Direction dir, BlockState dirState, LevelAccessor world,
+			BlockPos pos, BlockPos dirPos) {
+		if (dir == Direction.DOWN)
+			return !canSurviveOn(world, dirPos, dirState) ? Blocks.AIR.defaultBlockState() : state;
+		return super.updateShape(state, dir, dirState, world, pos, dirPos);
 	}
 
 	@Override

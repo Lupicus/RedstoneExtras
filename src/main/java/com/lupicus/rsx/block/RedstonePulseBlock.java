@@ -13,7 +13,9 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DiodeBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -58,6 +60,15 @@ public class RedstonePulseBlock extends DiodeBlock
 			world.setBlock(pos, state, 2);
 			return InteractionResult.SUCCESS;
 		}
+	}
+
+	@Override
+	@SuppressWarnings("deprecation")
+	public BlockState updateShape(BlockState state, Direction dir, BlockState dirState, LevelAccessor world,
+			BlockPos pos, BlockPos dirPos) {
+		if (dir == Direction.DOWN)
+			return !canSurviveOn(world, dirPos, dirState) ? Blocks.AIR.defaultBlockState() : state;
+		return super.updateShape(state, dir, dirState, world, pos, dirPos);
 	}
 
 	@Override

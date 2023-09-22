@@ -171,7 +171,7 @@ public class BluestoneWireBlock extends Block
 	public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn,
 			BlockPos currentPos, BlockPos facingPos) {
 		if (facing == Direction.DOWN) {
-			return stateIn;
+			return !this.canSurviveOn(worldIn, facingPos, facingState) ? Blocks.AIR.defaultBlockState() : stateIn;
 		} else if (facing == Direction.UP) {
 			return getConnectionState(worldIn, stateIn, currentPos);
 		} else {
