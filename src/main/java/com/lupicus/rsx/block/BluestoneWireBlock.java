@@ -10,6 +10,7 @@ import org.joml.Vector3f;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -46,6 +47,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 // Modified version of RedStoneWireBlock
 public class BluestoneWireBlock extends Block
 {
+	public static final MapCodec<BluestoneWireBlock> CODEC = simpleCodec(BluestoneWireBlock::new);
 	public static final EnumProperty<RedstoneSide> NORTH = BlockStateProperties.NORTH_REDSTONE;
 	public static final EnumProperty<RedstoneSide> EAST = BlockStateProperties.EAST_REDSTONE;
 	public static final EnumProperty<RedstoneSide> SOUTH = BlockStateProperties.SOUTH_REDSTONE;
@@ -74,6 +76,11 @@ public class BluestoneWireBlock extends Block
 	private static final Vector3f[] COLORS = new Vector3f[16];
 	private final BlockState powerDot;
 	private RedStoneWireBlock wire = (RedStoneWireBlock) Blocks.REDSTONE_WIRE;
+
+	@Override
+	public MapCodec<BluestoneWireBlock> codec() {
+		return CODEC;
+	}
 
 	public BluestoneWireBlock(Properties properties) {
 		super(properties);

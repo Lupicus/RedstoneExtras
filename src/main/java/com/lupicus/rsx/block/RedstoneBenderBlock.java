@@ -5,6 +5,8 @@ import java.util.Set;
 
 import org.joml.Vector3f;
 
+import com.mojang.serialization.MapCodec;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -37,8 +39,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class RedstoneBenderBlock extends HorizontalDirectionalBlock
 {
+	public static final MapCodec<RedstoneBenderBlock> CODEC = simpleCodec(RedstoneBenderBlock::new);
 	public static final IntegerProperty POWER = BlockStateProperties.POWER;
 	protected static final VoxelShape SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 2.0D, 16.0D);
+
+	@Override
+	protected MapCodec<? extends RedstoneBenderBlock> codec() {
+		return CODEC;
+	}
 
 	protected RedstoneBenderBlock(Properties builder) {
 		super(builder);

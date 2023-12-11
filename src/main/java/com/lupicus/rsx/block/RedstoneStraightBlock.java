@@ -2,6 +2,8 @@ package com.lupicus.rsx.block;
 
 import java.util.Set;
 
+import com.mojang.serialization.MapCodec;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
@@ -12,6 +14,13 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class RedstoneStraightBlock extends RedstoneBenderBlock
 {
+	public static final MapCodec<RedstoneStraightBlock> CODEC = simpleCodec(RedstoneStraightBlock::new);
+
+	@Override
+	protected MapCodec<RedstoneStraightBlock> codec() {
+		return CODEC;
+	}
+
 	protected RedstoneStraightBlock(Properties builder) {
 		super(builder);
 	}

@@ -2,6 +2,8 @@ package com.lupicus.rsx.block;
 
 import java.util.Set;
 
+import com.mojang.serialization.MapCodec;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
@@ -12,6 +14,13 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class RedstoneTeeBlock extends RedstoneBenderBlock
 {
+	public static final MapCodec<RedstoneTeeBlock> CODEC = simpleCodec(RedstoneTeeBlock::new);
+
+	@Override
+	protected MapCodec<RedstoneTeeBlock> codec() {
+		return CODEC;
+	}
+
 	protected RedstoneTeeBlock(Properties builder) {
 		super(builder);
 	}

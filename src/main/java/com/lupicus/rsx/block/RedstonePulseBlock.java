@@ -1,6 +1,7 @@
 package com.lupicus.rsx.block;
 
 import com.lupicus.rsx.sound.ModSounds;
+import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,9 +27,15 @@ import net.minecraft.world.phys.BlockHitResult;
 
 public class RedstonePulseBlock extends DiodeBlock
 {
+	public static final MapCodec<RedstonePulseBlock> CODEC = simpleCodec(RedstonePulseBlock::new);
 	public static final BooleanProperty PULSE = BooleanProperty.create("pulse");
 	public static final EnumProperty<PulseStrength> STRENGTH = EnumProperty.create("strength", PulseStrength.class);
 	public static final BooleanProperty INVERTED = BlockStateProperties.INVERTED;
+
+	@Override
+	protected MapCodec<RedstonePulseBlock> codec() {
+		return CODEC;
+	}
 
 	public RedstonePulseBlock(Properties properties) {
 		super(properties);

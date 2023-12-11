@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 
 import com.lupicus.rsx.tileentity.DaytimeSensorTileEntity;
 import com.lupicus.rsx.tileentity.ModTileEntities;
+import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
@@ -21,9 +22,15 @@ import net.minecraft.world.phys.BlockHitResult;
 
 public class DaytimeSensorBlock extends DaylightDetectorBlock
 {
+	public static final MapCodec<DaylightDetectorBlock> CODEC = simpleCodec(DaytimeSensorBlock::new);
 	private static long time;
 	private static ResourceKey<Level> dim;
 	private static int skyDarken;
+
+	@Override
+	public MapCodec<DaylightDetectorBlock> codec() {
+		return CODEC;
+	}
 
 	public DaytimeSensorBlock(Properties properties) {
 		super(properties);

@@ -1,5 +1,7 @@
 package com.lupicus.rsx.block;
 
+import com.mojang.serialization.MapCodec;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -19,7 +21,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class RedstonePowerBlock extends Block
 {
+	public static final MapCodec<RedstonePowerBlock> CODEC = simpleCodec(RedstonePowerBlock::new);
 	public static final IntegerProperty POWER = BlockStateProperties.POWER;
+
+	@Override
+	protected MapCodec<RedstonePowerBlock> codec() {
+		return CODEC;
+	}
 
 	public RedstonePowerBlock(Properties properties) {
 		super(properties);

@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 
 import com.lupicus.rsx.tileentity.ModTileEntities;
 import com.lupicus.rsx.tileentity.RedstoneEnergyTileEntity;
+import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
@@ -23,7 +24,13 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 
 public class RedstoneEnergyBlock extends BaseEntityBlock
 {
+	public static final MapCodec<RedstoneEnergyBlock> CODEC = simpleCodec(RedstoneEnergyBlock::new);
 	public static final IntegerProperty POWER = BlockStateProperties.POWER;
+
+	@Override
+	protected MapCodec<RedstoneEnergyBlock> codec() {
+		return CODEC;
+	}
 
 	public RedstoneEnergyBlock(Properties properties) {
 		super(properties);

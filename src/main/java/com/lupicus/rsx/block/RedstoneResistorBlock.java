@@ -1,5 +1,7 @@
 package com.lupicus.rsx.block;
 
+import com.mojang.serialization.MapCodec;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -27,8 +29,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class RedstoneResistorBlock extends DiodeBlock
 {
+	public static final MapCodec<RedstoneResistorBlock> CODEC = simpleCodec(RedstoneResistorBlock::new);
 	public static final IntegerProperty RESISTANCE = IntegerProperty.create("resistance", 0, 15);
 	public static final IntegerProperty POWER = BlockStateProperties.POWER;
+
+	@Override
+	protected MapCodec<RedstoneResistorBlock> codec() {
+		return CODEC;
+	}
 
 	protected RedstoneResistorBlock(Properties builder) {
 		super(builder);

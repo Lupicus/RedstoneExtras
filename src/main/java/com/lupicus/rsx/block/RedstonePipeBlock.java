@@ -8,6 +8,7 @@ import org.joml.Vector3f;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -18,12 +19,12 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.AbstractGlassBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RedStoneWireBlock;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.TransparentBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -33,8 +34,9 @@ import net.minecraft.world.level.block.state.properties.RedstoneSide;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class RedstonePipeBlock extends AbstractGlassBlock
+public class RedstonePipeBlock extends TransparentBlock
 {
+	public static final MapCodec<RedstonePipeBlock> CODEC = simpleCodec(RedstonePipeBlock::new);
 	public static final EnumProperty<RedstoneSide> REDSTONE_UP = EnumProperty.create("up", RedstoneSide.class);
 	public static final EnumProperty<RedstoneSide> REDSTONE_DOWN = EnumProperty.create("down", RedstoneSide.class);
 	public static final EnumProperty<RedstoneSide> UP = REDSTONE_UP;
@@ -54,6 +56,11 @@ public class RedstonePipeBlock extends AbstractGlassBlock
 			.build());
 	private static final Vector3f[] COLORS = new Vector3f[16];
 	private RedStoneWireBlock wire = (RedStoneWireBlock) Blocks.REDSTONE_WIRE;
+
+	@Override
+	public MapCodec<RedstonePipeBlock> codec() {
+		return CODEC;
+	}
 
 	public RedstonePipeBlock(Properties properties)
 	{
