@@ -13,6 +13,6 @@
     "M": { "item": "minecraft:repeater" }
   },
   "result": {
-    "item": "rsx:redstone_pulse_block"
+    "id": "rsx:redstone_pulse_block"
   }
 }

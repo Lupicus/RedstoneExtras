@@ -13,6 +13,6 @@
     "R": { "item": "minecraft:redstone" }
   },
   "result": {
-    "item": "rsx:redstone_energy_block"
+    "id": "rsx:redstone_energy_block"
   }
 }

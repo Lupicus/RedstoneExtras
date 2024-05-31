@@ -13,6 +13,6 @@
     "G": { "item": "minecraft:glass" }
   },
   "result": {
-    "item": "rsx:bluestone_pipe_block"
+    "id": "rsx:bluestone_pipe_block"
   }
 }

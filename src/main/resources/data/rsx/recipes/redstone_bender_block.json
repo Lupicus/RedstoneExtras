@@ -13,6 +13,6 @@
     "S": { "tag": "forge:stone" }
   },
   "result": {
-    "item": "rsx:redstone_bender_block"
+    "id": "rsx:redstone_bender_block"
   }
 }

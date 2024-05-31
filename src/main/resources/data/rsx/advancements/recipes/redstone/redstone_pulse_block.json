@@ -11,9 +11,7 @@
       "conditions": {
         "items": [
           {
-            "items": [
-              "minecraft:repeater"
-            ]
+            "items": "minecraft:repeater"
           }
         ]
       }

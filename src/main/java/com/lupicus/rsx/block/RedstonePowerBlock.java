@@ -5,7 +5,6 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
@@ -41,8 +40,8 @@ public class RedstonePowerBlock extends Block
 	}
 
 	@Override
-	public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player,
-			InteractionHand handIn, BlockHitResult result) {
+	protected InteractionResult useWithoutItem(BlockState state, Level worldIn, BlockPos pos, Player player,
+			BlockHitResult result) {
 		if (!player.mayBuild()) {
 			return InteractionResult.PASS;
 		} else {
@@ -59,22 +58,22 @@ public class RedstonePowerBlock extends Block
 	}
 
 	@Override
-	public boolean isSignalSource(BlockState state) {
+	protected boolean isSignalSource(BlockState state) {
 		return true;
 	}
 
 	@Override
-	public int getDirectSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+	protected int getDirectSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
 		return getSignal(blockState, blockAccess, pos, side);
 	}
 
 	@Override
-	public int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+	protected int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
 		return blockState.getValue(POWER);
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	public static int colorMultiplier(int power) {
+	public static int getColorForPower(int power) {
 		float f = (float) power / 15.0F;
 		float f1 = f * 0.6F + 0.4F;
 		if (power == 0) {

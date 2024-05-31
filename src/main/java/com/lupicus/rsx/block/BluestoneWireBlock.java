@@ -17,7 +17,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -53,32 +52,34 @@ public class BluestoneWireBlock extends Block
 	public static final EnumProperty<RedstoneSide> SOUTH = BlockStateProperties.SOUTH_REDSTONE;
 	public static final EnumProperty<RedstoneSide> WEST = BlockStateProperties.WEST_REDSTONE;
 	public static final IntegerProperty POWER = BlockStateProperties.POWER;
-	public static final Map<Direction, EnumProperty<RedstoneSide>> FACING_PROPERTY_MAP = Maps.newEnumMap(ImmutableMap
+	public static final Map<Direction, EnumProperty<RedstoneSide>> PROPERTY_BY_DIRECTION = Maps.newEnumMap(ImmutableMap
 			.of(Direction.NORTH, NORTH, Direction.EAST, EAST, Direction.SOUTH, SOUTH, Direction.WEST, WEST));
-	private static final VoxelShape DOT_SHAPE = Block.box(3.0D, 0.0D, 3.0D, 13.0D, 1.0D, 13.0D);
-	private static final Map<Direction, VoxelShape> SIDE_SHAPES = Maps
-			.newEnumMap(ImmutableMap.of(Direction.NORTH, Block.box(3.0D, 0.0D, 0.0D, 13.0D, 1.0D, 13.0D),
-					Direction.SOUTH, Block.box(3.0D, 0.0D, 3.0D, 13.0D, 1.0D, 16.0D), Direction.EAST,
-					Block.box(3.0D, 0.0D, 3.0D, 16.0D, 1.0D, 13.0D), Direction.WEST,
-					Block.box(0.0D, 0.0D, 3.0D, 13.0D, 1.0D, 13.0D)));
-	private static final Map<Direction, VoxelShape> UP_SHAPES = Maps.newEnumMap(ImmutableMap.of(Direction.NORTH,
+	private static final VoxelShape SHAPE_DOT = Block.box(3.0D, 0.0D, 3.0D, 13.0D, 1.0D, 13.0D);
+	private static final Map<Direction, VoxelShape> SHAPES_FLOOR = Maps.newEnumMap(ImmutableMap.of(
+					Direction.NORTH, Block.box(3.0D, 0.0D, 0.0D, 13.0D, 1.0D, 13.0D),
+					Direction.SOUTH, Block.box(3.0D, 0.0D, 3.0D, 13.0D, 1.0D, 16.0D),
+					Direction.EAST, Block.box(3.0D, 0.0D, 3.0D, 16.0D, 1.0D, 13.0D),
+					Direction.WEST, Block.box(0.0D, 0.0D, 3.0D, 13.0D, 1.0D, 13.0D)));
+	private static final Map<Direction, VoxelShape> SHAPES_UP = Maps.newEnumMap(ImmutableMap.of(
+			Direction.NORTH,
 			Shapes.or(
-					SIDE_SHAPES.get(Direction.NORTH), Block.box(3.0D, 0.0D, 0.0D, 13.0D, 16.0D, 1.0D)),
+					SHAPES_FLOOR.get(Direction.NORTH), Block.box(3.0D, 0.0D, 0.0D, 13.0D, 16.0D, 1.0D)),
 			Direction.SOUTH,
-			Shapes.or(SIDE_SHAPES.get(Direction.SOUTH),
-					Block.box(3.0D, 0.0D, 15.0D, 13.0D, 16.0D, 16.0D)),
+			Shapes.or(
+					SHAPES_FLOOR.get(Direction.SOUTH), Block.box(3.0D, 0.0D, 15.0D, 13.0D, 16.0D, 16.0D)),
 			Direction.EAST,
-			Shapes.or(SIDE_SHAPES.get(Direction.EAST),
-					Block.box(15.0D, 0.0D, 3.0D, 16.0D, 16.0D, 13.0D)),
-			Direction.WEST, Shapes.or(SIDE_SHAPES.get(Direction.WEST),
-					Block.box(0.0D, 0.0D, 3.0D, 1.0D, 16.0D, 13.0D))));
+			Shapes.or(
+					SHAPES_FLOOR.get(Direction.EAST), Block.box(15.0D, 0.0D, 3.0D, 16.0D, 16.0D, 13.0D)),
+			Direction.WEST,
+			Shapes.or(
+					SHAPES_FLOOR.get(Direction.WEST), Block.box(0.0D, 0.0D, 3.0D, 1.0D, 16.0D, 13.0D))));
 	private static final Map<BlockState, VoxelShape> SHAPES_CACHE = Maps.newHashMap();
 	private static final Vector3f[] COLORS = new Vector3f[16];
-	private final BlockState powerDot;
+	private final BlockState crossState;
 	private RedStoneWireBlock wire = (RedStoneWireBlock) Blocks.REDSTONE_WIRE;
 
 	@Override
-	public MapCodec<BluestoneWireBlock> codec() {
+	protected MapCodec<BluestoneWireBlock> codec() {
 		return CODEC;
 	}
 
@@ -87,7 +88,7 @@ public class BluestoneWireBlock extends Block
 		registerDefaultState(
 				stateDefinition.any().setValue(NORTH, RedstoneSide.NONE).setValue(EAST, RedstoneSide.NONE)
 						.setValue(SOUTH, RedstoneSide.NONE).setValue(WEST, RedstoneSide.NONE).setValue(POWER, Integer.valueOf(0)));
-		powerDot = defaultBlockState().setValue(NORTH, RedstoneSide.SIDE).setValue(EAST, RedstoneSide.SIDE)
+		crossState = defaultBlockState().setValue(NORTH, RedstoneSide.SIDE).setValue(EAST, RedstoneSide.SIDE)
 				.setValue(SOUTH, RedstoneSide.SIDE).setValue(WEST, RedstoneSide.SIDE);
 
 		for (BlockState blockstate : getStateDefinition().getPossibleStates()) {
@@ -98,14 +99,14 @@ public class BluestoneWireBlock extends Block
 	}
 
 	private VoxelShape calculateShape(BlockState state) {
-		VoxelShape voxelshape = DOT_SHAPE;
+		VoxelShape voxelshape = SHAPE_DOT;
 
 		for (Direction direction : Direction.Plane.HORIZONTAL) {
-			RedstoneSide redstoneside = state.getValue(FACING_PROPERTY_MAP.get(direction));
+			RedstoneSide redstoneside = state.getValue(PROPERTY_BY_DIRECTION.get(direction));
 			if (redstoneside == RedstoneSide.SIDE) {
-				voxelshape = Shapes.or(voxelshape, SIDE_SHAPES.get(direction));
+				voxelshape = Shapes.or(voxelshape, SHAPES_FLOOR.get(direction));
 			} else if (redstoneside == RedstoneSide.UP) {
-				voxelshape = Shapes.or(voxelshape, UP_SHAPES.get(direction));
+				voxelshape = Shapes.or(voxelshape, SHAPES_UP.get(direction));
 			}
 		}
 
@@ -113,13 +114,13 @@ public class BluestoneWireBlock extends Block
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
+	protected VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
 		return SHAPES_CACHE.get(state.setValue(POWER, Integer.valueOf(0)));
 	}
 
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
-		return getConnectionState(context.getLevel(), powerDot, context.getClickedPos());
+		return getConnectionState(context.getLevel(), crossState, context.getClickedPos());
 	}
 
 	private BlockState getConnectionState(BlockGetter world, BlockState state, BlockPos pos) {
@@ -158,7 +159,7 @@ public class BluestoneWireBlock extends Block
 		boolean flag = !world.getBlockState(pos.above()).isRedstoneConductor(world, pos);
 
 		for (Direction direction : Direction.Plane.HORIZONTAL) {
-			EnumProperty<RedstoneSide> prop = FACING_PROPERTY_MAP.get(direction);
+			EnumProperty<RedstoneSide> prop = PROPERTY_BY_DIRECTION.get(direction);
 			if (!state.getValue(prop).isConnected()) {
 				state = state.setValue(prop, getConnectingSide(world, pos, direction, flag));
 			}
@@ -175,7 +176,7 @@ public class BluestoneWireBlock extends Block
 	 * only the specific face passed in.
 	 */
 	@Override
-	public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn,
+	protected BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn,
 			BlockPos currentPos, BlockPos facingPos) {
 		if (facing == Direction.DOWN) {
 			return !this.canSurviveOn(worldIn, facingPos, facingState) ? Blocks.AIR.defaultBlockState() : stateIn;
@@ -183,10 +184,10 @@ public class BluestoneWireBlock extends Block
 			return getConnectionState(worldIn, stateIn, currentPos);
 		} else {
 			RedstoneSide redstoneside = getConnectingSide(worldIn, currentPos, facing);
-			return redstoneside.isConnected() == stateIn.getValue(FACING_PROPERTY_MAP.get(facing)).isConnected()
-					&& !isCross(stateIn) ? stateIn.setValue(FACING_PROPERTY_MAP.get(facing), redstoneside)
-							: getConnectionState(worldIn, powerDot.setValue(POWER, stateIn.getValue(POWER))
-									.setValue(FACING_PROPERTY_MAP.get(facing), redstoneside), currentPos);
+			EnumProperty<RedstoneSide> prop = PROPERTY_BY_DIRECTION.get(facing);
+			return redstoneside.isConnected() == stateIn.getValue(prop).isConnected() && !isCross(stateIn)
+					? stateIn.setValue(prop, redstoneside)
+					: getConnectionState(worldIn, crossState.setValue(POWER, stateIn.getValue(POWER)).setValue(prop, redstoneside), currentPos);
 		}
 	}
 
@@ -204,40 +205,35 @@ public class BluestoneWireBlock extends Block
 	 * performs updates on diagonal neighbors of the target position and passes in
 	 * the flags. The flags can be referenced from the docs for
 	 * {@link Level#setBlock(BlockPos, BlockState, int)} or
-	 * {@link net.minecraftforge.common.util.Constants.BlockFlags}.
+	 * {@link Block}.
 	 */
 	@Override
-	public void updateIndirectNeighbourShapes(BlockState state, LevelAccessor worldIn, BlockPos pos, int flags, int p_196248_5_) {
+	protected void updateIndirectNeighbourShapes(BlockState state, LevelAccessor worldIn, BlockPos pos, int flags, int avail) {
 		BlockPos.MutableBlockPos blockpos$mutable = new BlockPos.MutableBlockPos();
 
 		for (Direction direction : Direction.Plane.HORIZONTAL) {
-			RedstoneSide redstoneside = state.getValue(FACING_PROPERTY_MAP.get(direction));
+			RedstoneSide redstoneside = state.getValue(PROPERTY_BY_DIRECTION.get(direction));
 			if (redstoneside != RedstoneSide.NONE &&
 				!worldIn.getBlockState(blockpos$mutable.setWithOffset(pos, direction)).is(this)) {
 				blockpos$mutable.move(Direction.DOWN);
 				BlockState blockstate = worldIn.getBlockState(blockpos$mutable);
-				if (!blockstate.is(Blocks.OBSERVER)) {
+				if (blockstate.is(this)) {
 					BlockPos blockpos = blockpos$mutable.relative(direction.getOpposite());
-					BlockState blockstate1 = blockstate.updateShape(direction.getOpposite(),
-							worldIn.getBlockState(blockpos), worldIn, blockpos$mutable, blockpos);
-					updateOrDestroy(blockstate, blockstate1, worldIn, blockpos$mutable, flags, p_196248_5_);
+					worldIn.neighborShapeChanged(direction.getOpposite(), worldIn.getBlockState(blockpos), blockpos$mutable, blockpos, flags, avail);
 				}
 
 				blockpos$mutable.setWithOffset(pos, direction).move(Direction.UP);
-				BlockState blockstate3 = worldIn.getBlockState(blockpos$mutable);
-				if (!blockstate3.is(Blocks.OBSERVER)) {
+				BlockState blockstate1 = worldIn.getBlockState(blockpos$mutable);
+				if (blockstate1.is(this)) {
 					BlockPos blockpos1 = blockpos$mutable.relative(direction.getOpposite());
-					BlockState blockstate2 = blockstate3.updateShape(direction.getOpposite(),
-							worldIn.getBlockState(blockpos1), worldIn, blockpos$mutable, blockpos1);
-					updateOrDestroy(blockstate3, blockstate2, worldIn, blockpos$mutable, flags, p_196248_5_);
+					worldIn.neighborShapeChanged(direction.getOpposite(), worldIn.getBlockState(blockpos1), blockpos$mutable, blockpos1, flags, avail);
 				}
 			}
 		}
 	}
 
 	private RedstoneSide getConnectingSide(BlockGetter worldIn, BlockPos pos, Direction face) {
-		BlockPos blockpos1 = pos.above();
-		return getConnectingSide(worldIn, pos, face, !worldIn.getBlockState(blockpos1).isRedstoneConductor(worldIn, blockpos1));
+		return getConnectingSide(worldIn, pos, face, !worldIn.getBlockState(pos.above()).isRedstoneConductor(worldIn, pos));
 	}
 
 	private RedstoneSide getConnectingSide(BlockGetter worldIn, BlockPos pos, Direction face, boolean checkUp) {
@@ -271,7 +267,7 @@ public class BluestoneWireBlock extends Block
 	}
 
 	@Override
-	public boolean canSurvive(BlockState state, LevelReader worldIn, BlockPos pos) {
+	protected boolean canSurvive(BlockState state, LevelReader worldIn, BlockPos pos) {
 		BlockPos blockpos = pos.below();
 		BlockState blockstate = worldIn.getBlockState(blockpos);
 		return canSurviveOn(worldIn, blockpos, blockstate);
@@ -348,7 +344,7 @@ public class BluestoneWireBlock extends Block
 	}
 
 	@Override
-	public void onPlace(BlockState state, Level worldIn, BlockPos pos, BlockState oldState, boolean isMoving) {
+	protected void onPlace(BlockState state, Level worldIn, BlockPos pos, BlockState oldState, boolean isMoving) {
 		if (!oldState.is(state.getBlock()) && !worldIn.isClientSide) {
 			updatePowerStrength(worldIn, pos, state);
 
@@ -360,9 +356,8 @@ public class BluestoneWireBlock extends Block
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
-	public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
+	protected void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
 		if (!isMoving && !state.is(newState.getBlock())) {
 			super.onRemove(state, worldIn, pos, newState, isMoving);
 			if (!worldIn.isClientSide) {
@@ -392,7 +387,7 @@ public class BluestoneWireBlock extends Block
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
+	protected void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
 			boolean isMoving) {
 		if (!worldIn.isClientSide) {
 			if (state.canSurvive(worldIn, pos)) {
@@ -404,23 +399,13 @@ public class BluestoneWireBlock extends Block
 		}
 	}
 
-	/**
-	 * @deprecated call via
-	 *             {@link BlockStateBase#getDirectSignal(BlockGetter,BlockPos,Direction)}
-	 *             whenever possible. Implementing/overriding is fine.
-	 */
 	@Override
-	public int getDirectSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+	protected int getDirectSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
 		return !wire.shouldSignal ? 0 : blockState.getSignal(blockAccess, pos, side);
 	}
 
-	/**
-	 * @deprecated call via
-	 *             {@link BlockStateBase#getSignal(BlockGetter,BlockPos,Direction)}
-	 *             whenever possible. Implementing/overriding is fine.
-	 */
 	@Override
-	public int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+	protected int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
 		if (!wire.shouldSignal || side == Direction.DOWN) {
 			return 0;
 		}
@@ -428,7 +413,7 @@ public class BluestoneWireBlock extends Block
 		if (i == 0)
 			return 0;
 		return side == Direction.UP ||
-				getConnectionState(blockAccess, blockState, pos).getValue(FACING_PROPERTY_MAP.get(side.getOpposite())).isConnected() ? i : 0;
+				getConnectionState(blockAccess, blockState, pos).getValue(PROPERTY_BY_DIRECTION.get(side.getOpposite())).isConnected() ? i : 0;
 	}
 
 	protected static boolean shouldConnectTo(BlockState blockState, BlockGetter world, BlockPos pos,
@@ -447,17 +432,14 @@ public class BluestoneWireBlock extends Block
 	/**
 	 * Can this block provide power. Only wire currently seems to have this change
 	 * based on its state.
-	 * 
-	 * @deprecated call via {@link BlockStateBase#isSignalSource()} whenever possible.
-	 *             Implementing/overriding is fine.
 	 */
 	@Override
-	public boolean isSignalSource(BlockState state) {
+	protected boolean isSignalSource(BlockState state) {
 		return wire.shouldSignal;
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	public static int colorMultiplier(int power) {
+	public static int getColorForPower(int power) {
 		Vector3f vector3f = COLORS[power];
 		return Mth.color(vector3f.x(), vector3f.y(), vector3f.z());
 	}
@@ -485,7 +467,7 @@ public class BluestoneWireBlock extends Block
 	/**
 	 * Called periodically clientside on blocks near the player to show effects
 	 * (like furnace fire particles). Note that this method is unrelated to
-	 * {@link randomTick} and {@link #needsRandomTick}, and will always be called
+	 * {@link #randomTick} and {@link #isRandomlyTicking}, and will always be called
 	 * regardless of whether the block can receive random update ticks
 	 */
 	@Override
@@ -494,7 +476,7 @@ public class BluestoneWireBlock extends Block
 		int i = stateIn.getValue(POWER);
 		if (i != 0) {
 			for (Direction direction : Direction.Plane.HORIZONTAL) {
-				RedstoneSide redstoneside = stateIn.getValue(FACING_PROPERTY_MAP.get(direction));
+				RedstoneSide redstoneside = stateIn.getValue(PROPERTY_BY_DIRECTION.get(direction));
 				switch (redstoneside) {
 				case UP:
 					spawnParticlesAlongLine(worldIn, rand, pos, COLORS[i], direction, Direction.UP, -0.5F, 0.5F);
@@ -512,12 +494,9 @@ public class BluestoneWireBlock extends Block
 	/**
 	 * Returns the blockstate with the given rotation from the passed blockstate. If
 	 * inapplicable, returns the passed blockstate.
-	 * 
-	 * @deprecated call via {@link BlockStateBase#rotation(Rotation)} whenever
-	 *             possible. Implementing/overriding is fine.
 	 */
 	@Override
-	public BlockState rotate(BlockState state, Rotation rot) {
+	protected BlockState rotate(BlockState state, Rotation rot) {
 		switch (rot) {
 		case CLOCKWISE_180:
 			return state.setValue(NORTH, state.getValue(SOUTH)).setValue(EAST, state.getValue(WEST)).setValue(SOUTH, state.getValue(NORTH))
@@ -536,12 +515,9 @@ public class BluestoneWireBlock extends Block
 	/**
 	 * Returns the blockstate with the given mirror of the passed blockstate. If
 	 * inapplicable, returns the passed blockstate.
-	 * 
-	 * @deprecated call via {@link BlockStateBase#mirror(Mirror)} whenever
-	 *             possible. Implementing/overriding is fine.
 	 */
 	@Override
-	public BlockState mirror(BlockState state, Mirror mirrorIn) {
+	protected BlockState mirror(BlockState state, Mirror mirrorIn) {
 		switch (mirrorIn) {
 		case LEFT_RIGHT:
 			return state.setValue(NORTH, state.getValue(SOUTH)).setValue(SOUTH, state.getValue(NORTH));
@@ -558,14 +534,14 @@ public class BluestoneWireBlock extends Block
 	}
 
 	@Override
-	public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player,
-			InteractionHand handIn, BlockHitResult hit) {
+	protected InteractionResult useWithoutItem(BlockState state, Level worldIn, BlockPos pos, Player player,
+			BlockHitResult hit) {
 		if (!player.mayBuild()) {
 			return InteractionResult.PASS;
 		} else {
 			boolean flag = isCross(state);
 			if (flag || isDot(state)) {
-				BlockState blockstate = flag ? defaultBlockState() : powerDot;
+				BlockState blockstate = flag ? defaultBlockState() : crossState;
 				blockstate = blockstate.setValue(POWER, state.getValue(POWER));
 				blockstate = getConnectionState(worldIn, blockstate, pos);
 				if (blockstate != state) {
@@ -582,7 +558,7 @@ public class BluestoneWireBlock extends Block
 	private void updatesOnShapeChange(Level world, BlockPos pos, BlockState oldState, BlockState state) {
 		for (Direction direction : Direction.Plane.HORIZONTAL) {
 			BlockPos blockpos = pos.relative(direction);
-			EnumProperty<RedstoneSide> prop = FACING_PROPERTY_MAP.get(direction);
+			EnumProperty<RedstoneSide> prop = PROPERTY_BY_DIRECTION.get(direction);
 			if (oldState.getValue(prop).isConnected() != state.getValue(prop).isConnected() &&
 				world.getBlockState(blockpos).isRedstoneConductor(world, blockpos)) {
 				world.updateNeighborsAtExceptFromFacing(blockpos, state.getBlock(), direction.getOpposite());

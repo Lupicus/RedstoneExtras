@@ -9,7 +9,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
@@ -49,8 +48,8 @@ public class RedstonePulseBlock extends DiodeBlock
 	}
 
 	@Override
-	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player,
-			InteractionHand handIn, BlockHitResult result) {
+	protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player,
+			BlockHitResult result) {
 		if (!player.mayBuild()) {
 			return InteractionResult.PASS;
 		} else {
@@ -70,8 +69,7 @@ public class RedstonePulseBlock extends DiodeBlock
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
-	public BlockState updateShape(BlockState state, Direction dir, BlockState dirState, LevelAccessor world,
+	protected BlockState updateShape(BlockState state, Direction dir, BlockState dirState, LevelAccessor world,
 			BlockPos pos, BlockPos dirPos) {
 		if (dir == Direction.DOWN)
 			return !canSurviveOn(world, dirPos, dirState) ? Blocks.AIR.defaultBlockState() : state;
@@ -105,28 +103,28 @@ public class RedstonePulseBlock extends DiodeBlock
 	}
 
 	@Override
-	public int getDirectSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+	protected int getDirectSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
 		return getSignal(blockState, blockAccess, pos, side);
 	}
 
 	@Override
-	public int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+	protected int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
 		return blockState.getValue(FACING) == side ? this.getOutputSignal(blockAccess, pos, blockState) : 0;
 	}
 
 	@Override
-	public boolean triggerEvent(BlockState state, Level world, BlockPos pos, int id, int param) {
+	protected boolean triggerEvent(BlockState state, Level world, BlockPos pos, int id, int param) {
 		world.setBlock(pos, state.setValue(PULSE, false), 3);
 		return false;
 	}
 
 	@Override
-	public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
+	protected void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
 		checkTickOnNeighbor(world, pos, state);
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving) {
+	protected void neighborChanged(BlockState state, Level world, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving) {
 		if (!world.isClientSide && pos.equals(fromPos)) {
 			world.blockEvent(pos, this, 0, 0);
 		}

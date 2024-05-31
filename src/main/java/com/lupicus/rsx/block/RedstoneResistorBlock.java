@@ -7,7 +7,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -48,8 +47,8 @@ public class RedstoneResistorBlock extends DiodeBlock
 	}
 
 	@Override
-	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player,
-			InteractionHand handIn, BlockHitResult result) {
+	protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player,
+			BlockHitResult result) {
 		if (!player.mayBuild()) {
 			return InteractionResult.PASS;
 		} else {
@@ -67,8 +66,7 @@ public class RedstoneResistorBlock extends DiodeBlock
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
-	public BlockState updateShape(BlockState state, Direction dir, BlockState dirState, LevelAccessor world,
+	protected BlockState updateShape(BlockState state, Direction dir, BlockState dirState, LevelAccessor world,
 			BlockPos pos, BlockPos dirPos) {
 		if (dir == Direction.DOWN)
 			return !canSurviveOn(world, dirPos, dirState) ? Blocks.AIR.defaultBlockState() : state;
@@ -82,7 +80,7 @@ public class RedstoneResistorBlock extends DiodeBlock
 	}
 
 	@Override
-	public void tick(BlockState state, ServerLevel worldIn, BlockPos pos, RandomSource rand) {
+	protected void tick(BlockState state, ServerLevel worldIn, BlockPos pos, RandomSource rand) {
 	}
 
 	@Override
@@ -101,12 +99,12 @@ public class RedstoneResistorBlock extends DiodeBlock
 	}
 
 	@Override
-	public int getDirectSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+	protected int getDirectSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
 		return getSignal(blockState, blockAccess, pos, side);
 	}
 
 	@Override
-	public int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+	protected int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
 		return blockState.getValue(FACING) == side ? this.getOutputSignal(blockAccess, pos, blockState) : 0;
 	}
 
@@ -128,7 +126,7 @@ public class RedstoneResistorBlock extends DiodeBlock
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	public static int colorMultiplier(int resistance) {
+	public static int getColorForResistance(int resistance) {
 		float[] vals = DyeColor.byId(resistance).getTextureDiffuseColors();
 		return Mth.color(vals[0], vals[1], vals[2]);
 	}

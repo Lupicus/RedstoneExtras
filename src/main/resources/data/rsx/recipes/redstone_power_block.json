@@ -13,6 +13,6 @@
     "M": { "item": "minecraft:redstone_block" }
   },
   "result": {
-    "item": "rsx:redstone_power_block"
+    "id": "rsx:redstone_power_block"
   }
 }

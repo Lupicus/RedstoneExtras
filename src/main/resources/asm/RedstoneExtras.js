@@ -16,11 +16,11 @@ function initializeCoreMod() {
     		},
     		'transformer': function(classNode) {
     			var count = 0
-    			var fn = asmapi.mapMethod('m_55527_') // calculateTargetStrength
+    			var fn = "calculateTargetStrength"
     			for (var i = 0; i < classNode.methods.size(); ++i) {
     				var obj = classNode.methods.get(i)
     				if (obj.name == fn) {
-    					patch_m_55527_(obj)
+    					patch_calcTS(obj)
     					count++
     				}
     			}
@@ -33,8 +33,8 @@ function initializeCoreMod() {
 }
 
 // replace first call (of 3) to getWireSignal with RedstonePipeBlock::getLineSignalHook
-function patch_m_55527_(obj) {
-	var fn = asmapi.mapMethod('m_55648_') // getWireSignal
+function patch_calcTS(obj) {
+	var fn = "getWireSignal"
 	var owner = "net/minecraft/world/level/block/RedStoneWireBlock"
 	var desc = "(Lnet/minecraft/world/level/block/state/BlockState;)I"
 	var node = asmapi.findFirstMethodCall(obj, asmapi.MethodType.VIRTUAL, owner, fn, desc)

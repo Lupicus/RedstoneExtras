@@ -49,22 +49,22 @@ public class ModBlocks
 	public static void register(RegisterColorHandlersEvent.Block event)
 	{
 		event.register((blockstate, lightreader, pos, index) -> {
-			return RedstonePipeBlock.colorMultiplier(blockstate.getValue(RedstonePipeBlock.POWER));
+			return RedstonePipeBlock.getColorForPower(blockstate.getValue(RedstonePipeBlock.POWER));
 		}, REDSTONE_PIPE_BLOCK);
 		event.register((blockstate, lightreader, pos, index) -> {
-			return RedstonePowerBlock.colorMultiplier(blockstate.getValue(RedstonePowerBlock.POWER));
+			return RedstonePowerBlock.getColorForPower(blockstate.getValue(RedstonePowerBlock.POWER));
 		}, REDSTONE_POWER_BLOCK);
 		event.register((blockstate, lightreader, pos, index) -> {
-			return RedstoneBenderBlock.colorMultiplier(blockstate.getValue(RedstoneBenderBlock.POWER));
+			return RedstoneBenderBlock.getColorForPower(blockstate.getValue(RedstoneBenderBlock.POWER));
 		}, REDSTONE_BENDER_BLOCK, REDSTONE_TEE_BLOCK, REDSTONE_STRAIGHT_BLOCK);
 		event.register((blockstate, lightreader, pos, index) -> {
-			return RedstoneResistorBlock.colorMultiplier(blockstate.getValue(RedstoneResistorBlock.RESISTANCE));
+			return RedstoneResistorBlock.getColorForResistance(blockstate.getValue(RedstoneResistorBlock.RESISTANCE));
 		}, REDSTONE_RESISTOR_BLOCK);
 		event.register((blockstate, lightreader, pos, index) -> {
-			return BluestoneWireBlock.colorMultiplier(blockstate.getValue(BluestoneWireBlock.POWER));
+			return BluestoneWireBlock.getColorForPower(blockstate.getValue(BluestoneWireBlock.POWER));
 		}, BLUESTONE_WIRE);
 		event.register((blockstate, lightreader, pos, index) -> {
-			return BluestonePipeBlock.colorMultiplier(blockstate.getValue(BluestonePipeBlock.POWER));
+			return BluestonePipeBlock.getColorForPower(blockstate.getValue(BluestonePipeBlock.POWER));
 		}, BLUESTONE_PIPE_BLOCK);
 
 		BlockColors blockColors = event.getBlockColors();

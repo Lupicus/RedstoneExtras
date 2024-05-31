@@ -70,14 +70,14 @@ public class ModItems
 	{
 		event.register((itemstack, index) -> {
 			BlockState blockstate = ((BlockItem)itemstack.getItem()).getBlock().defaultBlockState();
-			return RedstonePowerBlock.colorMultiplier(blockstate.getValue(RedStoneWireBlock.POWER));
+			return RedstonePowerBlock.getColorForPower(blockstate.getValue(RedStoneWireBlock.POWER));
 		}, REDSTONE_POWER_BLOCK);
 		event.register((itemstack, index) -> {
-			return RedstoneBenderBlock.colorMultiplier(15);
+			return RedstoneBenderBlock.getColorForPower(15);
 		}, REDSTONE_BENDER_BLOCK, REDSTONE_TEE_BLOCK, REDSTONE_STRAIGHT_BLOCK);
 		event.register((itemstack, index) -> {
 			BlockState blockstate = ((BlockItem)itemstack.getItem()).getBlock().defaultBlockState();
-			return RedstoneResistorBlock.colorMultiplier(blockstate.getValue(RedstoneResistorBlock.RESISTANCE));
+			return RedstoneResistorBlock.getColorForResistance(blockstate.getValue(RedstoneResistorBlock.RESISTANCE));
 		}, REDSTONE_RESISTOR_BLOCK);
 	}
 }

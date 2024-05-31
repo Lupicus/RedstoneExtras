@@ -12,7 +12,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -57,12 +56,12 @@ public class RedstoneBenderBlock extends HorizontalDirectionalBlock
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
+	protected VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
 		return SHAPE;
 	}
 
 	@Override
-	public boolean canSurvive(BlockState state, LevelReader worldIn, BlockPos pos) {
+	protected boolean canSurvive(BlockState state, LevelReader worldIn, BlockPos pos) {
 		BlockPos blockpos = pos.below();
 		return this.canSurviveOn(worldIn, blockpos, worldIn.getBlockState(blockpos));
 	}
@@ -72,8 +71,8 @@ public class RedstoneBenderBlock extends HorizontalDirectionalBlock
 	}
 
 	@Override
-	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player,
-			InteractionHand handIn, BlockHitResult result) {
+	protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player,
+			BlockHitResult result) {
 		if (!player.mayBuild()) {
 			return InteractionResult.PASS;
 		} else {
@@ -99,8 +98,7 @@ public class RedstoneBenderBlock extends HorizontalDirectionalBlock
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
-	public BlockState updateShape(BlockState state, Direction dir, BlockState dirState, LevelAccessor world,
+	protected BlockState updateShape(BlockState state, Direction dir, BlockState dirState, LevelAccessor world,
 			BlockPos pos, BlockPos dirPos) {
 		if (dir == Direction.DOWN)
 			return !canSurviveOn(world, dirPos, dirState) ? Blocks.AIR.defaultBlockState() : state;
@@ -108,14 +106,13 @@ public class RedstoneBenderBlock extends HorizontalDirectionalBlock
 	}
 
 	@Override
-	public void onPlace(BlockState state, Level worldIn, BlockPos pos, BlockState oldState, boolean isMoving) {
+	protected void onPlace(BlockState state, Level worldIn, BlockPos pos, BlockState oldState, boolean isMoving) {
 		if (state.getBlock() != oldState.getBlock())
 			updateState(worldIn, pos, state);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
-	public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
+	protected void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
 		if (state.getBlock() != newState.getBlock()) {
 			super.onRemove(state, worldIn, pos, newState, isMoving);
 			if (getActiveSignal(worldIn, pos, state) > 0)
@@ -200,17 +197,17 @@ public class RedstoneBenderBlock extends HorizontalDirectionalBlock
 	}
 
 	@Override
-	public int getDirectSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+	protected int getDirectSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
 		return getSignal(blockState, blockAccess, pos, side);
 	}
 
 	@Override
-	public int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+	protected int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
 		return canConnectRedstone(blockState, blockAccess, pos, side) ? getActiveSignal(blockAccess, pos, blockState) : 0;
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
+	protected void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
 			boolean isMoving) {
 		if (state.canSurvive(worldIn, pos)) {
 			Direction from = Direction.fromDelta(pos.getX() - fromPos.getX(), pos.getY() - fromPos.getY(),
@@ -227,7 +224,7 @@ public class RedstoneBenderBlock extends HorizontalDirectionalBlock
 	}
 
 	@Override
-	public boolean isSignalSource(BlockState state) {
+	protected boolean isSignalSource(BlockState state) {
 		return true;
 	}
 
@@ -243,7 +240,7 @@ public class RedstoneBenderBlock extends HorizontalDirectionalBlock
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	public static int colorMultiplier(int power) {
+	public static int getColorForPower(int power) {
 		float f = (float) power / 15.0F;
 		float f1 = f * 0.6F + 0.4F;
 		if (power == 0) {
@@ -262,7 +259,7 @@ public class RedstoneBenderBlock extends HorizontalDirectionalBlock
 	/**
 	 * Called periodically clientside on blocks near the player to show effects
 	 * (like furnace fire particles). Note that this method is unrelated to
-	 * {@link randomTick} and {@link #needsRandomTick}, and will always be called
+	 * {@link #randomTick} and {@link #isRandomlyTicking}, and will always be called
 	 * regardless of whether the block can receive random update ticks
 	 */
 	@Override

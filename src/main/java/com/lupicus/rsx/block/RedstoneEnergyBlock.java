@@ -48,7 +48,7 @@ public class RedstoneEnergyBlock extends BaseEntityBlock
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
+	protected void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
 			boolean isMoving) {
 		updateState(worldIn, pos, state);
 		BlockEntity te = worldIn.getBlockEntity(pos);
@@ -73,7 +73,7 @@ public class RedstoneEnergyBlock extends BaseEntityBlock
 	}
 
 	@Override
-	public RenderShape getRenderShape(BlockState state) {
+	protected RenderShape getRenderShape(BlockState state) {
 		return RenderShape.MODEL;
 	}
 

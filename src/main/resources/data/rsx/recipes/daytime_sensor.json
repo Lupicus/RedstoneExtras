@@ -13,6 +13,6 @@
     "C": { "item": "minecraft:clock" }
   },
   "result": {
-    "item": "rsx:daytime_sensor"
+    "id": "rsx:daytime_sensor"
   }
 }

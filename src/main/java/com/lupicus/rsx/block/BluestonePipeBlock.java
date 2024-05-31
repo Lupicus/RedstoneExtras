@@ -44,7 +44,7 @@ public class BluestonePipeBlock extends TransparentBlock
 	public static final EnumProperty<RedstoneSide> SOUTH = BlockStateProperties.SOUTH_REDSTONE;
 	public static final EnumProperty<RedstoneSide> WEST = BlockStateProperties.WEST_REDSTONE;
 	public static final IntegerProperty POWER = BluestoneWireBlock.POWER; // == BlockStateProperties.POWER;
-	public static final Map<Direction, EnumProperty<RedstoneSide>> FACING_PROPERTY_MAP = Maps.newEnumMap(ImmutableMap.<Direction, EnumProperty<RedstoneSide>>builder()
+	public static final Map<Direction, EnumProperty<RedstoneSide>> PROPERTY_BY_DIRECTION = Maps.newEnumMap(ImmutableMap.<Direction, EnumProperty<RedstoneSide>>builder()
 			.put(Direction.NORTH, NORTH)
 			.put(Direction.EAST, EAST)
 			.put(Direction.SOUTH, SOUTH)
@@ -56,7 +56,7 @@ public class BluestonePipeBlock extends TransparentBlock
 	private RedStoneWireBlock wire = (RedStoneWireBlock) Blocks.REDSTONE_WIRE;
 
 	@Override
-	public MapCodec<BluestonePipeBlock> codec() {
+	protected MapCodec<BluestonePipeBlock> codec() {
 		return CODEC;
 	}
 
@@ -85,9 +85,9 @@ public class BluestonePipeBlock extends TransparentBlock
 	}
 
 	@Override
-	public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn,
+	protected BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn,
 			BlockPos currentPos, BlockPos facingPos) {
-		return stateIn.setValue(FACING_PROPERTY_MAP.get(facing), getSide(worldIn, currentPos, facing));
+		return stateIn.setValue(PROPERTY_BY_DIRECTION.get(facing), getSide(worldIn, currentPos, facing));
 	}
 
 	private RedstoneSide getSide(BlockGetter worldIn, BlockPos pos, Direction face) {
@@ -152,7 +152,7 @@ public class BluestonePipeBlock extends TransparentBlock
 	}
 
 	@Override
-	public void onPlace(BlockState state, Level worldIn, BlockPos pos, BlockState oldState, boolean isMoving) {
+	protected void onPlace(BlockState state, Level worldIn, BlockPos pos, BlockState oldState, boolean isMoving) {
 		if (!oldState.is(state.getBlock()) && !worldIn.isClientSide) {
 			updatePowerStrength(worldIn, pos, state);
 
@@ -162,9 +162,8 @@ public class BluestonePipeBlock extends TransparentBlock
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
-	public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
+	protected void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
 		if (!isMoving && !state.is(newState.getBlock())) {
 			super.onRemove(state, worldIn, pos, newState, isMoving);
 			if (!worldIn.isClientSide) {
@@ -186,7 +185,7 @@ public class BluestonePipeBlock extends TransparentBlock
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
+	protected void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
 			boolean isMoving) {
 		if (!worldIn.isClientSide) {
 			updatePowerStrength(worldIn, pos, state);
@@ -194,12 +193,12 @@ public class BluestonePipeBlock extends TransparentBlock
 	}
 
 	@Override
-	public int getDirectSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+	protected int getDirectSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
 		return wire.shouldSignal ? blockState.getSignal(blockAccess, pos, side) : 0;
 	}
 
 	@Override
-	public int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+	protected int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
 		return wire.shouldSignal ? blockState.getValue(POWER) : 0;
 	}
 
@@ -215,12 +214,12 @@ public class BluestonePipeBlock extends TransparentBlock
 	}
 
 	@Override
-	public boolean isSignalSource(BlockState state) {
+	protected boolean isSignalSource(BlockState state) {
 		return wire.shouldSignal;
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	public static int colorMultiplier(int power) {
+	public static int getColorForPower(int power) {
 		Vector3f vector3f = COLORS[power];
 		return Mth.color(vector3f.x(), vector3f.y(), vector3f.z());
 	}
@@ -228,7 +227,7 @@ public class BluestonePipeBlock extends TransparentBlock
 	/**
 	 * Called periodically clientside on blocks near the player to show effects
 	 * (like furnace fire particles). Note that this method is unrelated to
-	 * {@link randomTick} and {@link #needsRandomTick}, and will always be called
+	 * {@link #randomTick} and {@link #isRandomlyTicking}, and will always be called
 	 * regardless of whether the block can receive random update ticks
 	 */
 	@Override
@@ -245,7 +244,7 @@ public class BluestonePipeBlock extends TransparentBlock
 	}
 
 	@Override
-	public BlockState rotate(BlockState state, Rotation rot) {
+	protected BlockState rotate(BlockState state, Rotation rot) {
 		switch (rot) {
 		case CLOCKWISE_180:
 			return state.setValue(NORTH, state.getValue(SOUTH)).setValue(EAST, state.getValue(WEST)).setValue(SOUTH, state.getValue(NORTH))
@@ -261,9 +260,8 @@ public class BluestonePipeBlock extends TransparentBlock
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
-	public BlockState mirror(BlockState state, Mirror mirrorIn) {
+	protected BlockState mirror(BlockState state, Mirror mirrorIn) {
 		switch (mirrorIn) {
 		case LEFT_RIGHT:
 			return state.setValue(NORTH, state.getValue(SOUTH)).setValue(SOUTH, state.getValue(NORTH));

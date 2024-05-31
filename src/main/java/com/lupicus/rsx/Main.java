@@ -64,14 +64,12 @@ public class Main
 	    	ModItems.setupTabs(event);
 	    }
 
-	    @OnlyIn(Dist.CLIENT)
         @SubscribeEvent
         public static void onColorsRegistry(final RegisterColorHandlersEvent.Block event)
         {
         	ModBlocks.register(event);
         }
 
-        @OnlyIn(Dist.CLIENT)
         @SubscribeEvent
         public static void onColorsRegistry(final RegisterColorHandlersEvent.Item event)
         {
