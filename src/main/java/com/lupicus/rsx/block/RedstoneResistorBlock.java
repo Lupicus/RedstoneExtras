@@ -5,7 +5,6 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -127,8 +126,7 @@ public class RedstoneResistorBlock extends DiodeBlock
 
 	@OnlyIn(Dist.CLIENT)
 	public static int getColorForResistance(int resistance) {
-		float[] vals = DyeColor.byId(resistance).getTextureDiffuseColors();
-		return Mth.color(vals[0], vals[1], vals[2]);
+		return DyeColor.byId(resistance).getTextureDiffuseColor();
 	}
 
 	@Override
