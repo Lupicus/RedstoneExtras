@@ -13,7 +13,8 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DiodeBlock;
@@ -22,6 +23,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 
 public class RedstonePulseBlock extends DiodeBlock
@@ -69,11 +71,11 @@ public class RedstonePulseBlock extends DiodeBlock
 	}
 
 	@Override
-	protected BlockState updateShape(BlockState state, Direction dir, BlockState dirState, LevelAccessor world,
-			BlockPos pos, BlockPos dirPos) {
+	protected BlockState updateShape(BlockState state, LevelReader world, ScheduledTickAccess tickAccess, BlockPos pos,
+			Direction dir, BlockPos dirPos, BlockState dirState, RandomSource rand) {
 		if (dir == Direction.DOWN)
 			return !canSurviveOn(world, dirPos, dirState) ? Blocks.AIR.defaultBlockState() : state;
-		return super.updateShape(state, dir, dirState, world, pos, dirPos);
+		return super.updateShape(state, world, tickAccess, pos, dir, dirPos, dirState, rand);
 	}
 
 	@Override
@@ -91,7 +93,7 @@ public class RedstonePulseBlock extends DiodeBlock
 				{
 					state = state.setValue(POWERED, flag1).setValue(PULSE, true);
 					world.setBlock(pos, state, 3);
-					world.neighborChanged(pos, this, pos); // do special case below
+					world.neighborChanged(state, pos, (Block) null, null, false); // do special case below
 				}
 				else
 				{
@@ -124,12 +126,12 @@ public class RedstonePulseBlock extends DiodeBlock
 	}
 
 	@Override
-	protected void neighborChanged(BlockState state, Level world, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving) {
-		if (!world.isClientSide && pos.equals(fromPos)) {
+	protected void neighborChanged(BlockState state, Level world, BlockPos pos, Block blockIn, Orientation orient, boolean isMoving) {
+		if (!world.isClientSide && blockIn == null) {
 			world.blockEvent(pos, this, 0, 0);
 		}
 		else
-			super.neighborChanged(state, world, pos, blockIn, fromPos, isMoving);
+			super.neighborChanged(state, world, pos, blockIn, orient, isMoving);
 	}
 
 	@Override

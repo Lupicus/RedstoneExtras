@@ -9,8 +9,8 @@
   ],
   "key":
   {
-    "R": { "item": "minecraft:redstone" },
-    "G": { "item": "minecraft:glass" }
+    "R": "minecraft:redstone",
+    "G": "minecraft:glass"
   },
   "result": {
     "id": "rsx:redstone_pipe_block"

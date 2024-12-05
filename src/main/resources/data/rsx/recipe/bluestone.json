@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "redstone",
   "ingredients": [
-    {
-      "item": "minecraft:blue_dye"
-    },
-    {
-      "item": "minecraft:redstone"
-    }
+    "minecraft:blue_dye",
+    "minecraft:redstone"
   ],
   "result": {
     "id": "rsx:bluestone"

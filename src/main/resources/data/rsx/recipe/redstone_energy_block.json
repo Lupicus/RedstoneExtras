@@ -9,8 +9,8 @@
   ],
   "key":
   {
-    "F": { "item": "minecraft:furnace" },
-    "R": { "item": "minecraft:redstone" }
+    "F": "minecraft:furnace",
+    "R": "minecraft:redstone"
   },
   "result": {
     "id": "rsx:redstone_energy_block"

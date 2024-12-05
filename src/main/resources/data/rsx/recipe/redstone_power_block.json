@@ -9,8 +9,8 @@
   ],
   "key":
   {
-    "R": { "item": "minecraft:redstone" },
-    "M": { "item": "minecraft:redstone_block" }
+    "R": "minecraft:redstone",
+    "M": "minecraft:redstone_block"
   },
   "result": {
     "id": "rsx:redstone_power_block"

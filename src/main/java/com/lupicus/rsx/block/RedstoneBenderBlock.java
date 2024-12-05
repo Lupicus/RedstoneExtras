@@ -3,22 +3,19 @@ package com.lupicus.rsx.block;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.joml.Vector3f;
-
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -30,6 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -41,6 +39,7 @@ public class RedstoneBenderBlock extends HorizontalDirectionalBlock
 	public static final MapCodec<RedstoneBenderBlock> CODEC = simpleCodec(RedstoneBenderBlock::new);
 	public static final IntegerProperty POWER = BlockStateProperties.POWER;
 	protected static final VoxelShape SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 2.0D, 16.0D);
+	private static final int[] COLORS = RedstonePipeBlock.COLORS;
 
 	@Override
 	protected MapCodec<? extends RedstoneBenderBlock> codec() {
@@ -98,11 +97,11 @@ public class RedstoneBenderBlock extends HorizontalDirectionalBlock
 	}
 
 	@Override
-	protected BlockState updateShape(BlockState state, Direction dir, BlockState dirState, LevelAccessor world,
-			BlockPos pos, BlockPos dirPos) {
+	protected BlockState updateShape(BlockState state, LevelReader world, ScheduledTickAccess tickAccess, BlockPos pos,
+			Direction dir, BlockPos dirPos, BlockState dirState, RandomSource rand) {
 		if (dir == Direction.DOWN)
 			return !canSurviveOn(world, dirPos, dirState) ? Blocks.AIR.defaultBlockState() : state;
-		return super.updateShape(state, dir, dirState, world, pos, dirPos);
+		return super.updateShape(state, world, tickAccess, pos, dir, dirPos, dirState, rand);
 	}
 
 	@Override
@@ -143,11 +142,10 @@ public class RedstoneBenderBlock extends HorizontalDirectionalBlock
 	{
 		BlockPos blockpos = pos.relative(direction);
 		if (net.minecraftforge.event.ForgeEventFactory
-				.onNeighborNotify(worldIn, pos, worldIn.getBlockState(pos), java.util.EnumSet.of(direction), false)
-				.isCanceled())
+				.onNeighborNotify(worldIn, pos, worldIn.getBlockState(pos), java.util.EnumSet.of(direction), false))
 			return;
-		worldIn.neighborChanged(blockpos, this, pos);
-		worldIn.updateNeighborsAtExceptFromFacing(blockpos, this, direction.getOpposite());
+		worldIn.neighborChanged(blockpos, this, null);
+		worldIn.updateNeighborsAtExceptFromFacing(blockpos, this, direction.getOpposite(), null);
 	}
 
 	protected void updateState(Level world, BlockPos pos, BlockState state)
@@ -207,15 +205,10 @@ public class RedstoneBenderBlock extends HorizontalDirectionalBlock
 	}
 
 	@Override
-	protected void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
+	protected void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, Orientation orient,
 			boolean isMoving) {
 		if (state.canSurvive(worldIn, pos)) {
-			Direction from = Direction.fromDelta(pos.getX() - fromPos.getX(), pos.getY() - fromPos.getY(),
-					pos.getZ() - fromPos.getZ());
-			if (canConnectRedstone(state, worldIn, pos, from))
-			{
-				updateState(worldIn, pos, state);
-			}
+			updateState(worldIn, pos, state);
 		} else {
 			BlockEntity tileentity = state.hasBlockEntity() ? worldIn.getBlockEntity(pos) : null;
 			dropResources(state, worldIn, pos, tileentity);
@@ -241,19 +234,7 @@ public class RedstoneBenderBlock extends HorizontalDirectionalBlock
 
 	@OnlyIn(Dist.CLIENT)
 	public static int getColorForPower(int power) {
-		float f = (float) power / 15.0F;
-		float f1 = f * 0.6F + 0.4F;
-		if (power == 0) {
-			f1 = 0.3F;
-		}
-
-		float f2 = f * f * 0.7F - 0.5F;
-		float f3 = f * f * 0.6F - 0.7F;
-
-		int i = Mth.clamp((int) (f1 * 255.0F), 0, 255);
-		int j = Mth.clamp((int) (f2 * 255.0F), 0, 255);
-		int k = Mth.clamp((int) (f3 * 255.0F), 0, 255);
-		return -16777216 | i << 16 | j << 8 | k;
+		return COLORS[power];
 	}
 
 	/**
@@ -270,11 +251,7 @@ public class RedstoneBenderBlock extends HorizontalDirectionalBlock
 			double d0 = (double) pos.getX() + 0.5D + ((double) rand.nextFloat() - 0.5D) * 0.2D;
 			double d1 = (double) ((float) pos.getY() + 0.1875F);
 			double d2 = (double) pos.getZ() + 0.5D + ((double) rand.nextFloat() - 0.5D) * 0.2D;
-			float f = (float) i / 15.0F;
-			float f1 = f * 0.6F + 0.4F;
-			float f2 = Math.max(0.0F, f * f * 0.7F - 0.5F);
-			float f3 = Math.max(0.0F, f * f * 0.6F - 0.7F);
-			worldIn.addParticle(new DustParticleOptions(new Vector3f(f1, f2, f3), 1.0F), d0, d1, d2, 0.0D, 0.0D, 0.0D);
+			worldIn.addParticle(new DustParticleOptions(COLORS[i], 1.0F), d0, d1, d2, 0.0D, 0.0D, 0.0D);
 		}
 	}
 

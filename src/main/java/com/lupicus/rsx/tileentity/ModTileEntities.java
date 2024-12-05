@@ -1,5 +1,7 @@
 package com.lupicus.rsx.tileentity;
 
+import java.util.Set;
+
 import com.lupicus.rsx.block.ModBlocks;
 
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -7,8 +9,8 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 public class ModTileEntities
 {
-	public static final BlockEntityType<DaytimeSensorTileEntity> DAYTIME_SENSOR = BlockEntityType.Builder.of(DaytimeSensorTileEntity::new, ModBlocks.DAYTIME_SENSOR).build(null);
-	public static final BlockEntityType<RedstoneEnergyTileEntity> REDSTONE_ENERGY_BLOCK = BlockEntityType.Builder.of(RedstoneEnergyTileEntity::new, ModBlocks.REDSTONE_ENERGY_BLOCK).build(null);
+	public static final BlockEntityType<DaytimeSensorTileEntity> DAYTIME_SENSOR = new BlockEntityType<>(DaytimeSensorTileEntity::new, Set.of(ModBlocks.DAYTIME_SENSOR));
+	public static final BlockEntityType<RedstoneEnergyTileEntity> REDSTONE_ENERGY_BLOCK = new BlockEntityType<>(RedstoneEnergyTileEntity::new, Set.of(ModBlocks.REDSTONE_ENERGY_BLOCK));
 
 	public static void register(IForgeRegistry<BlockEntityType<?>> forgeRegistry)
 	{

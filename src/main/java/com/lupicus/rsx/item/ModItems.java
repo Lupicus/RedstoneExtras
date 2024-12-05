@@ -1,15 +1,23 @@
 package com.lupicus.rsx.item;
 
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
+import com.lupicus.rsx.Main;
 import com.lupicus.rsx.block.ModBlocks;
 import com.lupicus.rsx.block.RedstoneBenderBlock;
 import com.lupicus.rsx.block.RedstonePowerBlock;
 import com.lupicus.rsx.block.RedstoneResistorBlock;
 
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Item.Properties;
-import net.minecraft.world.item.ItemNameBlockItem;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RedStoneWireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
@@ -20,32 +28,36 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 public class ModItems
 {
-	public static final Item DAYTIME_SENSOR_BLOCK = new BlockItem(ModBlocks.DAYTIME_SENSOR, new Properties());
-	public static final Item REDSTONE_POWER_BLOCK = new BlockItem(ModBlocks.REDSTONE_POWER_BLOCK, new Properties());
-	public static final Item REDSTONE_PIPE_BLOCK = new BlockItem(ModBlocks.REDSTONE_PIPE_BLOCK, new Properties());
-	public static final Item REDSTONE_PULSE_BLOCK = new BlockItem(ModBlocks.REDSTONE_PULSE_BLOCK, new Properties());
-	public static final Item REDSTONE_RESISTOR_BLOCK = new BlockItem(ModBlocks.REDSTONE_RESISTOR_BLOCK, new Properties());
-	public static final Item REDSTONE_BENDER_BLOCK = new BlockItem(ModBlocks.REDSTONE_BENDER_BLOCK, new Properties());
-	public static final Item REDSTONE_TEE_BLOCK = new BlockItem(ModBlocks.REDSTONE_TEE_BLOCK, new Properties());
-	public static final Item REDSTONE_STRAIGHT_BLOCK = new BlockItem(ModBlocks.REDSTONE_STRAIGHT_BLOCK, new Properties());
-	public static final Item REDSTONE_ENERGY_BLOCK = new BlockItem(ModBlocks.REDSTONE_ENERGY_BLOCK, new Properties());
-	public static final Item BLUESTONE = new ItemNameBlockItem(ModBlocks.BLUESTONE_WIRE, new Item.Properties());
-	public static final Item BLUESTONE_PIPE_BLOCK = new BlockItem(ModBlocks.BLUESTONE_PIPE_BLOCK, new Properties());
+	public static final Item DAYTIME_SENSOR_BLOCK = register(ModBlocks.DAYTIME_SENSOR, BlockItem::new, new Properties());
+	public static final Item REDSTONE_POWER_BLOCK = register(ModBlocks.REDSTONE_POWER_BLOCK, BlockItem::new, new Properties());
+	public static final Item REDSTONE_PIPE_BLOCK = register(ModBlocks.REDSTONE_PIPE_BLOCK, BlockItem::new, new Properties());
+	public static final Item REDSTONE_PULSE_BLOCK = register(ModBlocks.REDSTONE_PULSE_BLOCK, BlockItem::new, new Properties());
+	public static final Item REDSTONE_RESISTOR_BLOCK = register(ModBlocks.REDSTONE_RESISTOR_BLOCK, BlockItem::new, new Properties());
+	public static final Item REDSTONE_BENDER_BLOCK = register(ModBlocks.REDSTONE_BENDER_BLOCK, BlockItem::new, new Properties());
+	public static final Item REDSTONE_TEE_BLOCK = register(ModBlocks.REDSTONE_TEE_BLOCK, BlockItem::new, new Properties());
+	public static final Item REDSTONE_STRAIGHT_BLOCK = register(ModBlocks.REDSTONE_STRAIGHT_BLOCK, BlockItem::new, new Properties());
+	public static final Item REDSTONE_ENERGY_BLOCK = register(ModBlocks.REDSTONE_ENERGY_BLOCK, BlockItem::new, new Properties());
+	public static final Item BLUESTONE = register("bluestone", createBlockItemWithCustomItemName(ModBlocks.BLUESTONE_WIRE), new Item.Properties());
+	public static final Item BLUESTONE_PIPE_BLOCK = register(ModBlocks.BLUESTONE_PIPE_BLOCK, BlockItem::new, new Properties());
 
 	public static void register(IForgeRegistry<Item> forgeRegistry)
 	{
-		forgeRegistry.register("daytime_sensor", DAYTIME_SENSOR_BLOCK);
-		forgeRegistry.register("redstone_power_block", REDSTONE_POWER_BLOCK);
-		forgeRegistry.register("redstone_pipe_block", REDSTONE_PIPE_BLOCK);
-		forgeRegistry.register("redstone_pulse_block", REDSTONE_PULSE_BLOCK);
-		forgeRegistry.register("redstone_resistor_block", REDSTONE_RESISTOR_BLOCK);
-		forgeRegistry.register("redstone_bender_block", REDSTONE_BENDER_BLOCK);
-		forgeRegistry.register("redstone_tee_block", REDSTONE_TEE_BLOCK);
-		forgeRegistry.register("redstone_straight_block", REDSTONE_STRAIGHT_BLOCK);
-		forgeRegistry.register("redstone_energy_block", REDSTONE_ENERGY_BLOCK);
-		forgeRegistry.register("bluestone", BLUESTONE);
-		forgeRegistry.register("bluestone_pipe_block", BLUESTONE_PIPE_BLOCK);
 	}
+
+	private static Item register(String name, Function<Properties, Item> func, Properties prop)
+	{
+		ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(Main.MODID, name));
+		return Items.registerItem(key, func, prop);
+	}
+
+	private static Item register(Block block, BiFunction<Block, Properties, Item> func, Properties prop)
+	{
+		return Items.registerBlock(block, func, prop);
+	}
+
+    private static Function<Item.Properties, Item> createBlockItemWithCustomItemName(Block block) {
+        return prop -> new BlockItem(block, prop.useItemDescriptionPrefix());
+    }
 
 	public static void setupTabs(BuildCreativeModeTabContentsEvent event)
 	{

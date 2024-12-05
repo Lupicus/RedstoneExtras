@@ -9,8 +9,8 @@
   ],
   "key":
   {
-    "R": { "item": "minecraft:redstone" },
-    "S": { "tag": "forge:stone" }
+    "R": "minecraft:redstone",
+    "S": "#c:stones"
   },
   "result": {
     "id": "rsx:redstone_bender_block"

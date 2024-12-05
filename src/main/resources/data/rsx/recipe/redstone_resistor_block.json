@@ -9,9 +9,9 @@
   ],
   "key":
   {
-    "R": { "item": "minecraft:redstone" },
-    "S": { "tag": "forge:stone" },
-    "D": { "tag": "forge:dyes" }
+    "R": "minecraft:redstone",
+    "S": "#c:stones",
+    "D": "#c:dyes"
   },
   "result": {
     "id": "rsx:redstone_resistor_block"

@@ -9,8 +9,8 @@
   ],
   "key":
   {
-    "R": { "item": "minecraft:redstone" },
-    "M": { "item": "minecraft:repeater" }
+    "R": "minecraft:redstone",
+    "M": "minecraft:repeater"
   },
   "result": {
     "id": "rsx:redstone_pulse_block"

@@ -13,7 +13,8 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DiodeBlock;
@@ -65,11 +66,11 @@ public class RedstoneResistorBlock extends DiodeBlock
 	}
 
 	@Override
-	protected BlockState updateShape(BlockState state, Direction dir, BlockState dirState, LevelAccessor world,
-			BlockPos pos, BlockPos dirPos) {
+	protected BlockState updateShape(BlockState state, LevelReader world, ScheduledTickAccess tickAccess, BlockPos pos,
+			Direction dir, BlockPos dirPos, BlockState dirState, RandomSource rand) {
 		if (dir == Direction.DOWN)
 			return !canSurviveOn(world, dirPos, dirState) ? Blocks.AIR.defaultBlockState() : state;
-		return super.updateShape(state, dir, dirState, world, pos, dirPos);
+		return super.updateShape(state, world, tickAccess, pos, dir, dirPos, dirState, rand);
 	}
 
 	@Override

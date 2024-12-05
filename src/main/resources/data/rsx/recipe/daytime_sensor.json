@@ -3,14 +3,13 @@
   "category": "redstone",
   "pattern":
   [
-    " C ",
-    " D ",
-    "   "
+    "C",
+    "D"
   ],
   "key":
   {
-    "D": { "item": "minecraft:daylight_detector" },
-    "C": { "item": "minecraft:clock" }
+    "D": "minecraft:daylight_detector",
+    "C": "minecraft:clock"
   },
   "result": {
     "id": "rsx:daytime_sensor"

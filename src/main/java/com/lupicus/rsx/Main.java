@@ -15,7 +15,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -28,16 +27,17 @@ public class Main
 {
     public static final String MODID = "rsx";
 
-    public Main()
+    public Main(FMLJavaModLoadingContext context)
     {
-    	FMLJavaModLoadingContext.get().getModEventBus().register(this);
-		ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, MyConfig.COMMON_SPEC);
+    	context.getModEventBus().register(this);
+		context.registerConfig(ModConfig.Type.COMMON, MyConfig.COMMON_SPEC);
     }
 
 	@OnlyIn(Dist.CLIENT)
 	@SubscribeEvent
 	public void setupClient(final FMLClientSetupEvent event)
     {
+		ModBlocks.setRenderLayer();
 	}
 
     @Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)

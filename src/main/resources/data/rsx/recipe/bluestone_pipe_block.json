@@ -9,8 +9,8 @@
   ],
   "key":
   {
-    "R": { "item": "rsx:bluestone" },
-    "G": { "item": "minecraft:glass" }
+    "R": "rsx:bluestone",
+    "G": "minecraft:glass"
   },
   "result": {
     "id": "rsx:bluestone_pipe_block"

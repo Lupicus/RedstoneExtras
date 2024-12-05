@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.redstone.Orientation;
 
 public class RedstoneEnergyBlock extends BaseEntityBlock
 {
@@ -48,7 +49,7 @@ public class RedstoneEnergyBlock extends BaseEntityBlock
 	}
 
 	@Override
-	protected void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
+	protected void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, Orientation orient,
 			boolean isMoving) {
 		updateState(worldIn, pos, state);
 		BlockEntity te = worldIn.getBlockEntity(pos);

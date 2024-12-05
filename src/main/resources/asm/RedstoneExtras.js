@@ -12,11 +12,11 @@ function initializeCoreMod() {
     	'redstoneWire': {
     		'target': {
     			'type': 'CLASS',
-    			'name': 'net.minecraft.world.level.block.RedStoneWireBlock'
+    			'name': 'net.minecraft.world.level.redstone.RedstoneWireEvaluator'
     		},
     		'transformer': function(classNode) {
     			var count = 0
-    			var fn = "calculateTargetStrength"
+    			var fn = "getIncomingWireSignal"
     			for (var i = 0; i < classNode.methods.size(); ++i) {
     				var obj = classNode.methods.get(i)
     				if (obj.name == fn) {
@@ -35,8 +35,8 @@ function initializeCoreMod() {
 // replace first call (of 3) to getWireSignal with RedstonePipeBlock::getLineSignalHook
 function patch_calcTS(obj) {
 	var fn = "getWireSignal"
-	var owner = "net/minecraft/world/level/block/RedStoneWireBlock"
-	var desc = "(Lnet/minecraft/world/level/block/state/BlockState;)I"
+	var owner = "net/minecraft/world/level/redstone/RedstoneWireEvaluator"
+	var desc = "(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)I"
 	var node = asmapi.findFirstMethodCall(obj, asmapi.MethodType.VIRTUAL, owner, fn, desc)
 	if (node) {
 		var count = 1
@@ -50,7 +50,7 @@ function patch_calcTS(obj) {
 		if (count == 3)
 		{
 			var call2 = asmapi.buildMethodCall("com/lupicus/rsx/block/RedstonePipeBlock", "getLineSignalHook", desc, asmapi.MethodType.STATIC)
-			obj.instructions.remove(node.getPrevious().getPrevious())  // remove this argument
+			obj.instructions.remove(node.getPrevious().getPrevious().getPrevious())  // remove this argument
 			obj.instructions.insertBefore(node, call2)
 			obj.instructions.remove(node)
 		}

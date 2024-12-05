@@ -19,6 +19,6 @@ public class ModSounds
 
 	public static void register(IForgeRegistry<SoundEvent> registry)
 	{
-		registry.register(REDSTONE_PULSE_CLICK.getLocation(), REDSTONE_PULSE_CLICK);
+		registry.register(REDSTONE_PULSE_CLICK.location(), REDSTONE_PULSE_CLICK);
 	}
 }

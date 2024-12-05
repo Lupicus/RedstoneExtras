@@ -1,7 +1,18 @@
 package com.lupicus.rsx.block;
 
+import java.util.function.Function;
+
+import com.lupicus.rsx.Main;
+
 import net.minecraft.client.color.block.BlockColors;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.BlockGetter;
@@ -18,31 +29,45 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 public class ModBlocks
 {
-	public static final Block DAYTIME_SENSOR = new DaytimeSensorBlock(Properties.of().mapColor(MapColor.WOOD).strength(0.2F).sound(SoundType.WOOD).ignitedByLava());
-	public static final Block REDSTONE_POWER_BLOCK = new RedstonePowerBlock(Properties.of().mapColor(MapColor.FIRE).requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.METAL).isRedstoneConductor(RedstonePowerBlock::isNormalCube));
-	public static final Block REDSTONE_PIPE_BLOCK = new RedstonePipeBlock(Properties.of().mapColor(DyeColor.RED).noOcclusion().strength(0.3F).sound(SoundType.GLASS).isRedstoneConductor(RedstonePipeBlock::isNormalCube).isValidSpawn(ModBlocks::never).isSuffocating(ModBlocks::never).isViewBlocking(ModBlocks::never));
-	public static final Block REDSTONE_PULSE_BLOCK = new RedstonePulseBlock(Properties.of().instabreak().sound(SoundType.STONE).pushReaction(PushReaction.DESTROY));
-	public static final Block REDSTONE_RESISTOR_BLOCK = new RedstoneResistorBlock(Properties.of().instabreak().sound(SoundType.STONE).pushReaction(PushReaction.DESTROY));
-	public static final Block REDSTONE_BENDER_BLOCK = new RedstoneBenderBlock(Properties.of().instabreak().sound(SoundType.STONE).pushReaction(PushReaction.DESTROY));
-	public static final Block REDSTONE_TEE_BLOCK = new RedstoneTeeBlock(Properties.of().instabreak().sound(SoundType.STONE).pushReaction(PushReaction.DESTROY));
-	public static final Block REDSTONE_STRAIGHT_BLOCK = new RedstoneStraightBlock(Properties.of().instabreak().sound(SoundType.STONE).pushReaction(PushReaction.DESTROY));
-	public static final Block REDSTONE_ENERGY_BLOCK = new RedstoneEnergyBlock(Properties.of().mapColor(MapColor.STONE).requiresCorrectToolForDrops().strength(3.5F).isRedstoneConductor(RedstoneEnergyBlock::isNormalCube));
-	public static final Block BLUESTONE_WIRE = new BluestoneWireBlock(Properties.of().noCollission().instabreak().pushReaction(PushReaction.DESTROY));
-	public static final Block BLUESTONE_PIPE_BLOCK = new BluestonePipeBlock(Properties.of().mapColor(DyeColor.BLUE).noOcclusion().strength(0.3F).sound(SoundType.GLASS).isRedstoneConductor(BluestonePipeBlock::isNormalCube).isValidSpawn(ModBlocks::never).isSuffocating(ModBlocks::never).isViewBlocking(ModBlocks::never));
+	public static final Block DAYTIME_SENSOR = register("daytime_sensor", DaytimeSensorBlock::new, Properties.of().mapColor(MapColor.WOOD).strength(0.2F).sound(SoundType.WOOD).ignitedByLava());
+	public static final Block REDSTONE_POWER_BLOCK = register("redstone_power_block", RedstonePowerBlock::new, Properties.of().mapColor(MapColor.FIRE).requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.METAL).isRedstoneConductor(RedstonePowerBlock::isNormalCube));
+	public static final Block REDSTONE_PIPE_BLOCK = register("redstone_pipe_block", RedstonePipeBlock::new, Properties.of().mapColor(DyeColor.RED).noOcclusion().strength(0.3F).sound(SoundType.GLASS).isRedstoneConductor(RedstonePipeBlock::isNormalCube).isValidSpawn(ModBlocks::never).isSuffocating(ModBlocks::never).isViewBlocking(ModBlocks::never));
+	public static final Block REDSTONE_PULSE_BLOCK = register("redstone_pulse_block", RedstonePulseBlock::new, Properties.of().instabreak().sound(SoundType.STONE).pushReaction(PushReaction.DESTROY));
+	public static final Block REDSTONE_RESISTOR_BLOCK = register("redstone_resistor_block", RedstoneResistorBlock::new, Properties.of().instabreak().sound(SoundType.STONE).pushReaction(PushReaction.DESTROY));
+	public static final Block REDSTONE_BENDER_BLOCK = register("redstone_bender_block", RedstoneBenderBlock::new, Properties.of().instabreak().sound(SoundType.STONE).pushReaction(PushReaction.DESTROY));
+	public static final Block REDSTONE_TEE_BLOCK = register("redstone_tee_block", RedstoneTeeBlock::new, Properties.of().instabreak().sound(SoundType.STONE).pushReaction(PushReaction.DESTROY));
+	public static final Block REDSTONE_STRAIGHT_BLOCK = register("redstone_straight_block", RedstoneStraightBlock::new, Properties.of().instabreak().sound(SoundType.STONE).pushReaction(PushReaction.DESTROY));
+	public static final Block REDSTONE_ENERGY_BLOCK = register("redstone_energy_block", RedstoneEnergyBlock::new, Properties.of().mapColor(MapColor.STONE).requiresCorrectToolForDrops().strength(3.5F).isRedstoneConductor(RedstoneEnergyBlock::isNormalCube));
+	public static final Block BLUESTONE_WIRE = register("bluestone_wire", BluestoneWireBlock::new, Properties.of().noCollission().instabreak().pushReaction(PushReaction.DESTROY));
+	public static final Block BLUESTONE_PIPE_BLOCK = register("bluestone_pipe_block", BluestonePipeBlock::new, Properties.of().mapColor(DyeColor.BLUE).noOcclusion().strength(0.3F).sound(SoundType.GLASS).isRedstoneConductor(BluestonePipeBlock::isNormalCube).isValidSpawn(ModBlocks::never).isSuffocating(ModBlocks::never).isViewBlocking(ModBlocks::never));
 
 	public static void register(IForgeRegistry<Block> forgeRegistry)
 	{
-		forgeRegistry.register("daytime_sensor", DAYTIME_SENSOR);
-		forgeRegistry.register("redstone_power_block", REDSTONE_POWER_BLOCK);
-		forgeRegistry.register("redstone_pipe_block", REDSTONE_PIPE_BLOCK);
-		forgeRegistry.register("redstone_pulse_block", REDSTONE_PULSE_BLOCK);
-		forgeRegistry.register("redstone_resistor_block", REDSTONE_RESISTOR_BLOCK);
-		forgeRegistry.register("redstone_bender_block", REDSTONE_BENDER_BLOCK);
-		forgeRegistry.register("redstone_tee_block", REDSTONE_TEE_BLOCK);
-		forgeRegistry.register("redstone_straight_block", REDSTONE_STRAIGHT_BLOCK);
-		forgeRegistry.register("redstone_energy_block", REDSTONE_ENERGY_BLOCK);
-		forgeRegistry.register("bluestone_wire", BLUESTONE_WIRE);
-		forgeRegistry.register("bluestone_pipe_block", BLUESTONE_PIPE_BLOCK);
+	}
+
+	private static Block register(String name, Function<Properties, Block> func, Properties prop)
+	{
+		ResourceKey<Block> key = ResourceKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(Main.MODID, name));
+		return register(key, func, prop);
+	}
+
+	// same as Blocks#register
+	private static Block register(ResourceKey<Block> key, Function<Properties, Block> func, Properties prop) {
+		Block block = func.apply(prop.setId(key));
+		return Registry.register(BuiltInRegistries.BLOCK, key, block);
+	}
+
+	@OnlyIn(Dist.CLIENT)
+	@SuppressWarnings("deprecation")
+	public static void setRenderLayer()
+	{
+		ItemBlockRenderTypes.setRenderLayer(REDSTONE_PIPE_BLOCK, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(REDSTONE_PULSE_BLOCK, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(REDSTONE_BENDER_BLOCK, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(REDSTONE_TEE_BLOCK, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(REDSTONE_STRAIGHT_BLOCK, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(BLUESTONE_WIRE, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(BLUESTONE_PIPE_BLOCK, RenderType.cutout());
 	}
 
 	@OnlyIn(Dist.CLIENT)

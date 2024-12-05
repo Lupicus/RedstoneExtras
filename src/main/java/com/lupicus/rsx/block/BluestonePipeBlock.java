@@ -3,8 +3,6 @@ package com.lupicus.rsx.block;
 import java.util.Map;
 import java.util.Set;
 
-import org.joml.Vector3f;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -13,12 +11,14 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
@@ -31,6 +31,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.RedstoneSide;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -52,7 +53,7 @@ public class BluestonePipeBlock extends TransparentBlock
 			.put(Direction.UP, UP)
 			.put(Direction.DOWN, DOWN)
 			.build());
-	private static final Vector3f[] COLORS = new Vector3f[16];
+	private static final int[] COLORS = new int[16];
 	private RedStoneWireBlock wire = (RedStoneWireBlock) Blocks.REDSTONE_WIRE;
 
 	@Override
@@ -85,8 +86,8 @@ public class BluestonePipeBlock extends TransparentBlock
 	}
 
 	@Override
-	protected BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn,
-			BlockPos currentPos, BlockPos facingPos) {
+	protected BlockState updateShape(BlockState stateIn, LevelReader worldIn, ScheduledTickAccess tickAccess, BlockPos currentPos,
+			Direction facing, BlockPos facingPos, BlockState facingState, RandomSource rand) {
 		return stateIn.setValue(PROPERTY_BY_DIRECTION.get(facing), getSide(worldIn, currentPos, facing));
 	}
 
@@ -185,7 +186,7 @@ public class BluestonePipeBlock extends TransparentBlock
 	}
 
 	@Override
-	protected void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
+	protected void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, Orientation orient,
 			boolean isMoving) {
 		if (!worldIn.isClientSide) {
 			updatePowerStrength(worldIn, pos, state);
@@ -220,8 +221,7 @@ public class BluestonePipeBlock extends TransparentBlock
 
 	@OnlyIn(Dist.CLIENT)
 	public static int getColorForPower(int power) {
-		Vector3f vector3f = COLORS[power];
-		return Mth.color(vector3f.x(), vector3f.y(), vector3f.z());
+		return COLORS[power];
 	}
 
 	/**
@@ -238,8 +238,7 @@ public class BluestonePipeBlock extends TransparentBlock
 			double d0 = (double) pos.getX() + 0.5D + ((double) rand.nextFloat() - 0.5D) * 0.8D;
 			double d1 = (double) pos.getY() + 0.5D + ((double) rand.nextFloat() - 0.5D) * 0.8D;
 			double d2 = (double) pos.getZ() + 0.5D + ((double) rand.nextFloat() - 0.5D) * 0.8D;
-			Vector3f vec = COLORS[i];
-			worldIn.addParticle(new DustParticleOptions(vec, 1.0F), d0, d1, d2, 0.0D, 0.0D, 0.0D);
+			worldIn.addParticle(new DustParticleOptions(COLORS[i], 1.0F), d0, d1, d2, 0.0D, 0.0D, 0.0D);
 		}
 	}
 
@@ -283,7 +282,7 @@ public class BluestonePipeBlock extends TransparentBlock
 			float f3 = f * 0.6F + (f > 0.0F ? 0.4F : 0.3F);
 			float f2 = Mth.clamp(f * f * 0.7F - 0.5F, 0.0F, 1.0F);
 			float f1 = Mth.clamp(f * f * 0.6F - 0.7F, 0.0F, 1.0F);
-			COLORS[i] = new Vector3f(f1, f2, f3);
+			COLORS[i] = ARGB.colorFromFloat(1.0F, f1, f2, f3);
 		}
 	}
 }
