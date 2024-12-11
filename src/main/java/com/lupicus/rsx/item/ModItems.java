@@ -5,9 +5,6 @@ import java.util.function.Function;
 
 import com.lupicus.rsx.Main;
 import com.lupicus.rsx.block.ModBlocks;
-import com.lupicus.rsx.block.RedstoneBenderBlock;
-import com.lupicus.rsx.block.RedstonePowerBlock;
-import com.lupicus.rsx.block.RedstoneResistorBlock;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -18,11 +15,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Item.Properties;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.RedStoneWireBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 
@@ -75,21 +67,5 @@ public class ModItems
 			event.accept(DAYTIME_SENSOR_BLOCK);
 			event.accept(REDSTONE_ENERGY_BLOCK);
 		}
-	}
-
-	@OnlyIn(Dist.CLIENT)
-	public static void register(RegisterColorHandlersEvent.Item event)
-	{
-		event.register((itemstack, index) -> {
-			BlockState blockstate = ((BlockItem)itemstack.getItem()).getBlock().defaultBlockState();
-			return RedstonePowerBlock.getColorForPower(blockstate.getValue(RedStoneWireBlock.POWER));
-		}, REDSTONE_POWER_BLOCK);
-		event.register((itemstack, index) -> {
-			return RedstoneBenderBlock.getColorForPower(15);
-		}, REDSTONE_BENDER_BLOCK, REDSTONE_TEE_BLOCK, REDSTONE_STRAIGHT_BLOCK);
-		event.register((itemstack, index) -> {
-			BlockState blockstate = ((BlockItem)itemstack.getItem()).getBlock().defaultBlockState();
-			return RedstoneResistorBlock.getColorForResistance(blockstate.getValue(RedstoneResistorBlock.RESISTANCE));
-		}, REDSTONE_RESISTOR_BLOCK);
 	}
 }

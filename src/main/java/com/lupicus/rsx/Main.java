@@ -29,7 +29,7 @@ public class Main
 
     public Main(FMLJavaModLoadingContext context)
     {
-    	context.getModEventBus().register(this);
+		context.getModEventBus().register(this);
 		context.registerConfig(ModConfig.Type.COMMON, MyConfig.COMMON_SPEC);
     }
 
@@ -68,12 +68,6 @@ public class Main
         public static void onColorsRegistry(final RegisterColorHandlersEvent.Block event)
         {
         	ModBlocks.register(event);
-        }
-
-        @SubscribeEvent
-        public static void onColorsRegistry(final RegisterColorHandlersEvent.Item event)
-        {
-        	ModItems.register(event);
         }
     }
 }

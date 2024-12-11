@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "rsx:block/redstone_resistor_block",
+    "tints": [
+       {
+         "type": "minecraft:constant",
+         "value": -393218
+       }
+    ]
+  }
+}

@@ -4,7 +4,6 @@ import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
@@ -22,6 +21,7 @@ public class RedstonePowerBlock extends Block
 {
 	public static final MapCodec<RedstonePowerBlock> CODEC = simpleCodec(RedstonePowerBlock::new);
 	public static final IntegerProperty POWER = BlockStateProperties.POWER;
+	private static final int[] COLORS = RedstonePipeBlock.COLORS;
 
 	@Override
 	protected MapCodec<RedstonePowerBlock> codec() {
@@ -74,19 +74,7 @@ public class RedstonePowerBlock extends Block
 
 	@OnlyIn(Dist.CLIENT)
 	public static int getColorForPower(int power) {
-		float f = (float) power / 15.0F;
-		float f1 = f * 0.6F + 0.4F;
-		if (power == 0) {
-			f1 = 0.3F;
-		}
-
-		float f2 = f * f * 0.7F - 0.5F;
-		float f3 = f * f * 0.6F - 0.7F;
-
-		int i = Mth.clamp((int) (f1 * 255.0F), 0, 255);
-		int j = Mth.clamp((int) (f2 * 255.0F), 0, 255);
-		int k = Mth.clamp((int) (f3 * 255.0F), 0, 255);
-		return -16777216 | i << 16 | j << 8 | k;
+		return COLORS[power];
 	}
 
 	@Override
