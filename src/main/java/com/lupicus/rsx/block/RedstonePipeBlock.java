@@ -11,6 +11,7 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -161,19 +162,16 @@ public class RedstonePipeBlock extends TransparentBlock
 	}
 
 	@Override
-	protected void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (!isMoving && !state.is(newState.getBlock())) {
-			super.onRemove(state, worldIn, pos, newState, isMoving);
-			if (!worldIn.isClientSide) {
-				for (Direction direction : Direction.values()) {
-					worldIn.updateNeighborsAt(pos.relative(direction), this);
-				}
-
-				updatePowerStrength(worldIn, pos, state);
-
-				for (Direction direction : Direction.values()) {
-					updateNeighborsOfNeighboringWires(worldIn, pos.relative(direction));
-				}
+	protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel worldIn, BlockPos pos, boolean isMoving) {
+		if (!isMoving) {
+			for (Direction direction : Direction.values()) {
+				worldIn.updateNeighborsAt(pos.relative(direction), this);
+			}
+	
+			updatePowerStrength(worldIn, pos, state);
+	
+			for (Direction direction : Direction.values()) {
+				updateNeighborsOfNeighboringWires(worldIn, pos.relative(direction));
 			}
 		}
 	}

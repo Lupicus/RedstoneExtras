@@ -8,6 +8,7 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -111,12 +112,9 @@ public class RedstoneBenderBlock extends HorizontalDirectionalBlock
 	}
 
 	@Override
-	protected void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (state.getBlock() != newState.getBlock()) {
-			super.onRemove(state, worldIn, pos, newState, isMoving);
-			if (getActiveSignal(worldIn, pos, state) > 0)
-				notifyNeighbors(worldIn, pos, state);
-		}
+	protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel worldIn, BlockPos pos, boolean isMoving) {
+		if (getActiveSignal(worldIn, pos, state) > 0)
+			notifyNeighbors(worldIn, pos, state);
 	}
 
 	protected void getSides(BlockState state, Set<Direction> set)

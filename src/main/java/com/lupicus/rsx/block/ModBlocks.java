@@ -58,7 +58,7 @@ public class ModBlocks
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings("removal")
 	public static void setRenderLayer()
 	{
 		ItemBlockRenderTypes.setRenderLayer(REDSTONE_PIPE_BLOCK, RenderType.cutout());
