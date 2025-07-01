@@ -5,8 +5,6 @@ import java.util.function.Function;
 import com.lupicus.rsx.Main;
 
 import net.minecraft.client.color.block.BlockColors;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -55,19 +53,6 @@ public class ModBlocks
 	private static Block register(ResourceKey<Block> key, Function<Properties, Block> func, Properties prop) {
 		Block block = func.apply(prop.setId(key));
 		return Registry.register(BuiltInRegistries.BLOCK, key, block);
-	}
-
-	@OnlyIn(Dist.CLIENT)
-	@SuppressWarnings("removal")
-	public static void setRenderLayer()
-	{
-		ItemBlockRenderTypes.setRenderLayer(REDSTONE_PIPE_BLOCK, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(REDSTONE_PULSE_BLOCK, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(REDSTONE_BENDER_BLOCK, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(REDSTONE_TEE_BLOCK, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(REDSTONE_STRAIGHT_BLOCK, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(BLUESTONE_WIRE, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(BLUESTONE_PIPE_BLOCK, RenderType.cutout());
 	}
 
 	@OnlyIn(Dist.CLIENT)

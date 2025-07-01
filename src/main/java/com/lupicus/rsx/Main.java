@@ -10,14 +10,11 @@ import com.lupicus.rsx.tileentity.ModTileEntities;
 
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
@@ -29,16 +26,8 @@ public class Main
 
     public Main(FMLJavaModLoadingContext context)
     {
-		context.getModEventBus().register(this);
 		context.registerConfig(ModConfig.Type.COMMON, MyConfig.COMMON_SPEC);
     }
-
-	@OnlyIn(Dist.CLIENT)
-	@SubscribeEvent
-	public void setupClient(final FMLClientSetupEvent event)
-    {
-		ModBlocks.setRenderLayer();
-	}
 
     @Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
     public static class ModEvents
