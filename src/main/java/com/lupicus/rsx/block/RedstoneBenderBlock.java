@@ -148,7 +148,7 @@ public class RedstoneBenderBlock extends HorizontalDirectionalBlock
 
 	protected void updateState(Level world, BlockPos pos, BlockState state)
 	{
-		if (!world.isClientSide)
+		if (!world.isClientSide())
 		{
 			int i = state.getValue(POWER);
 			int j = calculateInputStrength(world, pos, state);

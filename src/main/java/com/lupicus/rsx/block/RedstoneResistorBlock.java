@@ -86,7 +86,7 @@ public class RedstoneResistorBlock extends DiodeBlock
 	@Override
 	protected void checkTickOnNeighbor(Level world, BlockPos pos, BlockState state)
 	{
-		if (!world.isClientSide)
+		if (!world.isClientSide())
 		{
 			int i = state.getValue(POWER);
 			int j = getInputSignal(world, pos, state);

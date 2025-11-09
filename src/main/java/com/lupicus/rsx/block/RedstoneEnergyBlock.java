@@ -88,7 +88,7 @@ public class RedstoneEnergyBlock extends BaseEntityBlock
 	@Nullable
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
 		BlockEntityTicker<RedstoneEnergyTileEntity> func = RedstoneEnergyBlock::tickEntity;
-		return !world.isClientSide && type == ModTileEntities.REDSTONE_ENERGY_BLOCK ? (BlockEntityTicker<T>)func : null;
+		return !world.isClientSide() && type == ModTileEntities.REDSTONE_ENERGY_BLOCK ? (BlockEntityTicker<T>)func : null;
 	}
 
 	private static void tickEntity(Level world, BlockPos pos, BlockState state, RedstoneEnergyTileEntity blockEntity) {

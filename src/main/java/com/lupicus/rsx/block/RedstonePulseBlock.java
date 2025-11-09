@@ -81,7 +81,7 @@ public class RedstonePulseBlock extends DiodeBlock
 	@Override
 	protected void checkTickOnNeighbor(Level world, BlockPos pos, BlockState state)
 	{
-		if (!world.isClientSide)
+		if (!world.isClientSide())
 		{
 			boolean flag = state.getValue(POWERED);
 			boolean flag1 = shouldTurnOn(world, pos, state);
@@ -127,7 +127,7 @@ public class RedstonePulseBlock extends DiodeBlock
 
 	@Override
 	protected void neighborChanged(BlockState state, Level world, BlockPos pos, Block blockIn, Orientation orient, boolean isMoving) {
-		if (!world.isClientSide && blockIn == null) {
+		if (!world.isClientSide() && blockIn == null) {
 			world.blockEvent(pos, this, 0, 0);
 		}
 		else

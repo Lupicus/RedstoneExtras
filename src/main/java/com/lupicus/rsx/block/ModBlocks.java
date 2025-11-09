@@ -36,7 +36,7 @@ public class ModBlocks
 	public static final Block REDSTONE_TEE_BLOCK = register("redstone_tee_block", RedstoneTeeBlock::new, Properties.of().instabreak().sound(SoundType.STONE).pushReaction(PushReaction.DESTROY));
 	public static final Block REDSTONE_STRAIGHT_BLOCK = register("redstone_straight_block", RedstoneStraightBlock::new, Properties.of().instabreak().sound(SoundType.STONE).pushReaction(PushReaction.DESTROY));
 	public static final Block REDSTONE_ENERGY_BLOCK = register("redstone_energy_block", RedstoneEnergyBlock::new, Properties.of().mapColor(MapColor.STONE).requiresCorrectToolForDrops().strength(3.5F).isRedstoneConductor(RedstoneEnergyBlock::isNormalCube));
-	public static final Block BLUESTONE_WIRE = register("bluestone_wire", BluestoneWireBlock::new, Properties.of().noCollission().instabreak().pushReaction(PushReaction.DESTROY));
+	public static final Block BLUESTONE_WIRE = register("bluestone_wire", BluestoneWireBlock::new, Properties.of().noCollision().instabreak().pushReaction(PushReaction.DESTROY));
 	public static final Block BLUESTONE_PIPE_BLOCK = register("bluestone_pipe_block", BluestonePipeBlock::new, Properties.of().mapColor(DyeColor.BLUE).noOcclusion().strength(0.3F).sound(SoundType.GLASS).isRedstoneConductor(BluestonePipeBlock::isNormalCube).isValidSpawn(ModBlocks::never).isSuffocating(ModBlocks::never).isViewBlocking(ModBlocks::never));
 
 	public static void register(IForgeRegistry<Block> forgeRegistry)

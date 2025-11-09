@@ -155,7 +155,7 @@ public class BluestonePipeBlock extends TransparentBlock
 
 	@Override
 	protected void onPlace(BlockState state, Level worldIn, BlockPos pos, BlockState oldState, boolean isMoving) {
-		if (!oldState.is(state.getBlock()) && !worldIn.isClientSide) {
+		if (!oldState.is(state.getBlock()) && !worldIn.isClientSide()) {
 			updatePowerStrength(worldIn, pos, state);
 
 			for (Direction direction : Direction.values()) {
@@ -186,7 +186,7 @@ public class BluestonePipeBlock extends TransparentBlock
 	@Override
 	protected void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, Orientation orient,
 			boolean isMoving) {
-		if (!worldIn.isClientSide) {
+		if (!worldIn.isClientSide()) {
 			updatePowerStrength(worldIn, pos, state);
 		}
 	}

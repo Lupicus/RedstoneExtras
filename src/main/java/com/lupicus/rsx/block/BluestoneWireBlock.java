@@ -330,7 +330,7 @@ public class BluestoneWireBlock extends Block
 
 	@Override
 	protected void onPlace(BlockState state, Level worldIn, BlockPos pos, BlockState oldState, boolean isMoving) {
-		if (!oldState.is(state.getBlock()) && !worldIn.isClientSide) {
+		if (!oldState.is(state.getBlock()) && !worldIn.isClientSide()) {
 			updatePowerStrength(worldIn, pos, state);
 
 			for (Direction direction : Direction.Plane.VERTICAL) {
@@ -371,7 +371,7 @@ public class BluestoneWireBlock extends Block
 	@Override
 	protected void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, Orientation orient,
 			boolean isMoving) {
-		if (!worldIn.isClientSide) {
+		if (!worldIn.isClientSide()) {
 			if (state.canSurvive(worldIn, pos)) {
 				updatePowerStrength(worldIn, pos, state);
 			} else {

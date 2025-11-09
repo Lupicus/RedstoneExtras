@@ -62,7 +62,7 @@ public class DaytimeSensorBlock extends DaylightDetectorBlock
 	protected InteractionResult useWithoutItem(BlockState state, Level worldIn, BlockPos pos, Player player,
 			BlockHitResult result) {
 		if (player.mayBuild()) {
-			if (worldIn.isClientSide) {
+			if (worldIn.isClientSide()) {
 				return InteractionResult.SUCCESS;
 			} else {
 				BlockState blockstate = state.cycle(INVERTED);
@@ -84,7 +84,7 @@ public class DaytimeSensorBlock extends DaylightDetectorBlock
 	@Override
 	@Nullable
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
-		return !world.isClientSide && world.dimensionType().hasSkyLight() ? createTickerHelper(type, ModTileEntities.DAYTIME_SENSOR, DaytimeSensorBlock::tickEntity) : null;
+		return !world.isClientSide() && world.dimensionType().hasSkyLight() ? createTickerHelper(type, ModTileEntities.DAYTIME_SENSOR, DaytimeSensorBlock::tickEntity) : null;
 	}
 
 	private static void tickEntity(Level world, BlockPos pos, BlockState state, DaytimeSensorTileEntity blockEntity) {
